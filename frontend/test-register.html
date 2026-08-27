@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>LifeLine Registration</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            background: #f5f7fa;
+        }
+
+        .container {
+
+            width: 100%;
+            max-width: 500px;
+
+            background: white;
+
+            padding: 35px;
+
+            border-radius: 15px;
+
+            box-shadow:
+                0 8px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #d32f2f;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #777;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        input,
+        select {
+
+            width: 100%;
+
+            padding: 12px;
+
+            border: 1px solid #ddd;
+
+            border-radius: 7px;
+
+            font-size: 15px;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #d32f2f;
+        }
+
+        .role-box {
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 12px;
+
+            margin-bottom: 20px;
+        }
+
+        .role-box button {
+
+            padding: 12px;
+
+            border: 2px solid #ddd;
+
+            background: white;
+
+            border-radius: 8px;
+
+            cursor: pointer;
+
+            font-weight: bold;
+        }
+
+        .role-box button.active {
+
+            background: #d32f2f;
+
+            color: white;
+
+            border-color: #d32f2f;
+        }
+
+        .donor-fields {
+            display: block;
+        }
+
+        button.register {
+
+            width: 100%;
+
+            padding: 14px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #d32f2f;
+
+            color: white;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        button.register:hover {
+            background: #b71c1c;
+        }
+
+        #message {
+
+            display: none;
+
+            padding: 12px;
+
+            border-radius: 7px;
+
+            margin-bottom: 18px;
+
+            text-align: center;
+        }
+
+        .success {
+            display: block !important;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .error {
+            display: block !important;
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .login-link {
+
+            text-align: center;
+
+            margin-top: 20px;
+
+            color: #666;
+        }
+
+        .login-link a {
+
+            color: #d32f2f;
+
+            text-decoration: none;
+
+            font-weight: bold;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+    <h1>🩸 LifeLine</h1>
+
+    <p class="subtitle">
+        Create your LifeLine account
+    </p>
+
+
+    <!-- ROLE SELECTION -->
+
+    <div class="form-group">
+
+        <label>
+            Register As
+        </label>
+
+        <div class="role-box">
+
+            <button
+                type="button"
+                id="donorButton"
+                class="active"
+            >
+                🩸 Donor
+            </button>
+
+            <button
+                type="button"
+                id="hospitalButton"
+            >
+                🏥 Hospital
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div id="message"></div>
+
+
+    <form id="registerForm">
+
+
+        <!-- NAME -->
+
+        <div class="form-group">
+
+            <label for="name">
+                Name
+            </label>
+
+            <input
+                type="text"
+                id="name"
+                placeholder="Enter your name"
+                required
+            >
+
+        </div>
+
+
+        <!-- EMAIL -->
+
+        <div class="form-group">
+
+            <label for="email">
+                Email
+            </label>
+
+            <input
+                type="email"
+                id="email"
+                placeholder="Enter email"
+                required
+            >
+
+        </div>
+
+
+        <!-- PASSWORD -->
+
+        <div class="form-group">
+
+            <label for="password">
+                Password
+            </label>
+
+            <input
+                type="password"
+                id="password"
+                placeholder="Create password"
+                required
+            >
+
+        </div>
+
+
+        <!-- PHONE -->
+
+        <div class="form-group">
+
+            <label for="phone">
+                Phone
+            </label>
+
+            <input
+                type="tel"
+                id="phone"
+                placeholder="Enter phone number"
+                required
+            >
+
+        </div>
+
+
+        <!-- LOCATION -->
+
+        <div class="form-group">
+
+            <label for="location">
+                Location
+            </label>
+
+            <input
+                type="text"
+                id="location"
+                placeholder="Enter location"
+                required
+            >
+
+        </div>
+
+
+        <!-- =========================
+             DONOR ONLY FIELDS
+        ========================= -->
+
+        <div id="donorFields">
+
+
+            <!-- AGE -->
+
+            <div class="form-group">
+
+                <label for="age">
+                    Age
+                </label>
+
+                <input
+                    type="number"
+                    id="age"
+                    min="18"
+                    max="65"
+                    placeholder="Enter age"
+                >
+
+            </div>
+
+
+            <!-- BLOOD GROUP -->
+
+            <div class="form-group">
+
+                <label for="blood_group">
+                    Blood Group
+                </label>
+
+                <select id="blood_group">
+
+                    <option value="">
+                        Select blood group
+                    </option>
+
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+
+                </select>
+
+            </div>
+
+
+            <!-- LAST DONATION -->
+
+            <div class="form-group">
+
+                <label for="last_donation_date">
+                    Last Donation Date
+                </label>
+
+                <input
+                    type="date"
+                    id="last_donation_date"
+                >
+
+            </div>
+
+
+        </div>
+
+
+        <button
+            type="submit"
+            class="register"
+        >
+            Create Account
+        </button>
+
+
+    </form>
+
+
+    <div class="login-link">
+
+        Already have an account?
+
+        <a href="login.html">
+            Login
+        </a>
+
+    </div>
+
+
+</div>
+
+
+<script>
+
+
+// =====================================
+// CURRENT ROLE
+// =====================================
+
+let selectedRole = "donor";
+
+
+// =====================================
+// ELEMENTS
+// =====================================
+
+const donorButton =
+    document.getElementById("donorButton");
+
+const hospitalButton =
+    document.getElementById("hospitalButton");
+
+const donorFields =
+    document.getElementById("donorFields");
+
+
+// =====================================
+// DONOR BUTTON
+// =====================================
+
+donorButton.addEventListener(
+    "click",
+    function() {
+
+        selectedRole = "donor";
+
+        donorButton.classList.add("active");
+
+        hospitalButton.classList.remove("active");
+
+        donorFields.style.display = "block";
+
+        document.getElementById("age").required = true;
+
+        document.getElementById("blood_group").required = true;
+
+    }
+);
+
+
+// =====================================
+// HOSPITAL BUTTON
+// =====================================
+
+hospitalButton.addEventListener(
+    "click",
+    function() {
+
+        selectedRole = "hospital";
+
+        hospitalButton.classList.add("active");
+
+        donorButton.classList.remove("active");
+
+        donorFields.style.display = "none";
+
+        document.getElementById("age").required = false;
+
+        document.getElementById("blood_group").required = false;
+
+    }
+);
+
+
+// =====================================
+// REGISTER
+// =====================================
+
+document.getElementById(
+    "registerForm"
+).addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+
+        const name =
+            document.getElementById("name").value.trim();
+
+        const email =
+            document.getElementById("email").value.trim();
+
+        const password =
+            document.getElementById("password").value;
+
+        const phone =
+            document.getElementById("phone").value.trim();
+
+        const location =
+            document.getElementById("location").value.trim();
+
+        const age =
+            document.getElementById("age").value;
+
+        const blood_group =
+            document.getElementById("blood_group").value;
+
+        const last_donation_date =
+            document.getElementById(
+                "last_donation_date"
+            ).value;
+
+
+        const messageBox =
+            document.getElementById("message");
+
+
+        // =====================================
+        // CREATE DATA
+        // =====================================
+
+        const userData = {
+
+            role: selectedRole,
+
+            name: name,
+
+            email: email,
+
+            password: password,
+
+            phone: phone,
+
+            location: location
+
+        };
+
+
+        // Add donor fields only for donor
+
+        if (selectedRole === "donor") {
+
+            userData.age = age;
+
+            userData.blood_group = blood_group;
+
+            userData.last_donation_date =
+                last_donation_date || null;
+
+        }
+
+
+        try {
+
+
+            const response =
+                await fetch(
+                    "http://localhost:5000/api/auth/register",
+                    {
+
+                        method: "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        body:
+                            JSON.stringify(userData)
+
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            // =====================================
+            // ERROR
+            // =====================================
+
+            if (!response.ok) {
+
+                messageBox.className = "error";
+
+                messageBox.textContent =
+                    data.message ||
+                    "Registration failed.";
+
+                return;
+
+            }
+
+
+            // =====================================
+            // SUCCESS
+            // =====================================
+
+            messageBox.className = "success";
+
+            messageBox.textContent =
+                data.message +
+                " You can now login.";
+
+
+            document.getElementById(
+                "registerForm"
+            ).reset();
+
+
+        } catch (error) {
+
+            console.error(
+                "Registration Error:",
+                error
+            );
+
+
+            messageBox.className = "error";
+
+            messageBox.textContent =
+                "Unable to connect to LifeLine server.";
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+
+</html>

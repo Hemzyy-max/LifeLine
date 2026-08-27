@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>LifeLine | Nearby Donors</title>
+
+    <!-- Leaflet CSS -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6f9;
+            color: #111827;
+        }
+
+        header {
+            height: 70px;
+            background: linear-gradient(
+                135deg,
+                #991b1b,
+                #dc2626
+            );
+
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 30px;
+
+            box-shadow:
+                0 4px 15px rgba(0,0,0,.15);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        button {
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+
+        #refreshButton {
+            background: white;
+            color: #b91c1c;
+            padding: 10px 15px;
+        }
+
+        #logoutButton {
+            background: #7f1d1d;
+            color: white;
+            padding: 10px 15px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 25px auto;
+            padding: 0 20px;
+        }
+
+        .title-section {
+            margin-bottom: 20px;
+        }
+
+        .title-section h1 {
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+
+        .title-section p {
+            color: #6b7280;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 330px;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 15px;
+            padding: 18px;
+            box-shadow:
+                0 4px 15px rgba(0,0,0,.05);
+        }
+
+        .map-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .map-header h2 {
+            font-size: 18px;
+        }
+
+        #map {
+            width: 100%;
+            height: 650px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .status {
+            padding: 8px 12px;
+            border-radius: 20px;
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .donor-list {
+            margin-top: 15px;
+            max-height: 610px;
+            overflow-y: auto;
+        }
+
+        .donor-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .donor-card:hover {
+            border-color: #dc2626;
+            box-shadow:
+                0 4px 12px rgba(0,0,0,.08);
+        }
+
+        .donor-name {
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 7px;
+        }
+
+        .donor-info {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.7;
+        }
+
+        .blood {
+            display: inline-block;
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 12px;
+            margin-bottom: 7px;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 30px 10px;
+            color: #9ca3af;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #6b7280;
+        }
+
+        .legend {
+            margin-top: 12px;
+            display: flex;
+            gap: 20px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .hospital-dot {
+            background: #2563eb;
+        }
+
+        .donor-dot {
+            background: #dc2626;
+        }
+
+        @media(max-width:900px) {
+
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            #map {
+                height: 500px;
+            }
+
+            .donor-list {
+                max-height: none;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <div class="logo">
+        🩸 LifeLine
+    </div>
+
+    <div class="header-right">
+
+        <span id="hospitalName">
+            Hospital
+        </span>
+
+        <button id="refreshButton">
+            🔄 Refresh
+        </button>
+
+        <button id="logoutButton">
+            Logout
+        </button>
+
+    </div>
+
+</header>
+
+
+<main class="container">
+
+    <div class="title-section">
+
+        <h1>
+            🗺️ Nearby Blood Donors
+        </h1>
+
+        <p>
+            Find available blood donors near your hospital.
+        </p>
+
+    </div>
+
+
+    <div class="layout">
+
+
+        <!-- MAP -->
+
+        <section class="card">
+
+            <div class="map-header">
+
+                <h2>
+                    📍 Donor Map
+                </h2>
+
+                <div
+                    class="status"
+                    id="mapStatus">
+
+                    Loading...
+
+                </div>
+
+            </div>
+
+
+            <div id="map"></div>
+
+
+            <div class="legend">
+
+                <div class="legend-item">
+
+                    <span
+                        class="legend-dot hospital-dot">
+                    </span>
+
+                    Hospital
+
+                </div>
+
+
+                <div class="legend-item">
+
+                    <span
+                        class="legend-dot donor-dot">
+                    </span>
+
+                    Available Donor
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- DONOR LIST -->
+
+        <section class="card">
+
+            <div class="map-header">
+
+                <h2>
+                    🩸 Available Donors
+                </h2>
+
+                <strong id="donorCount">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div
+                class="donor-list"
+                id="donorList">
+
+                <div class="loading">
+                    Loading donors...
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</main>
+
+
+<!-- Leaflet JS -->
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+
+
+<script>
+
+const API_BASE =
+    "http://localhost:5000";
+
+
+const token =
+    localStorage.getItem(
+        "lifelineToken"
+    );
+
+
+const userData =
+    localStorage.getItem(
+        "lifelineUser"
+    );
+
+
+/* =====================================================
+   AUTH
+===================================================== */
+
+if (!token) {
+
+    window.location.href =
+        "login.html";
+
+}
+
+
+let user = null;
+
+
+try {
+
+    user =
+        JSON.parse(userData);
+
+}
+catch(error) {
+
+    localStorage.removeItem(
+        "lifelineToken"
+    );
+
+    localStorage.removeItem(
+        "lifelineUser"
+    );
+
+    window.location.href =
+        "login.html";
+}
+
+
+/* =====================================================
+   USER
+===================================================== */
+
+if (user) {
+
+    document.getElementById(
+        "hospitalName"
+    ).textContent =
+        user.name ||
+        user.hospital_name ||
+        "Hospital";
+
+}
+
+
+/* =====================================================
+   MAP
+===================================================== */
+
+let map = null;
+
+let hospitalMarker = null;
+
+let donorMarkers = [];
+
+let donors = [];
+
+
+/*
+    Default Chennai location.
+
+    This is only the initial position.
+    Once donors are loaded,
+    the map automatically moves
+    to their coordinates.
+*/
+
+const DEFAULT_LAT =
+    13.0827;
+
+const DEFAULT_LNG =
+    80.2707;
+
+
+/* =====================================================
+   CREATE MAP
+===================================================== */
+
+function initializeMap() {
+
+    map =
+        L.map("map")
+        .setView(
+            [
+                DEFAULT_LAT,
+                DEFAULT_LNG
+            ],
+            12
+        );
+
+
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+            maxZoom: 19,
+
+            attribution:
+                '&copy; OpenStreetMap contributors'
+        }
+    ).addTo(map);
+
+
+    /*
+        Hospital marker
+    */
+
+    const hospitalIcon =
+        L.divIcon({
+
+            className:
+                "hospital-marker",
+
+            html: `
+                <div style="
+                    width:34px;
+                    height:34px;
+                    border-radius:50%;
+                    background:#2563eb;
+                    border:4px solid white;
+                    box-shadow:0 2px 8px rgba(0,0,0,.3);
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    font-size:17px;
+                ">
+                    🏥
+                </div>
+            `,
+
+            iconSize:
+                [34,34],
+
+            iconAnchor:
+                [17,17]
+
+        });
+
+
+    hospitalMarker =
+        L.marker(
+            [
+                DEFAULT_LAT,
+                DEFAULT_LNG
+            ],
+            {
+                icon:
+                    hospitalIcon
+            }
+        )
+        .addTo(map);
+
+
+    hospitalMarker.bindPopup(
+        `
+            <strong>🏥 LifeLine Hospital</strong>
+            <br>
+            Hospital location
+        `
+    );
+
+}
+
+
+/* =====================================================
+   AUTH HEADERS
+===================================================== */
+
+function authHeaders() {
+
+    return {
+
+        "Authorization":
+            "Bearer " + token,
+
+        "Content-Type":
+            "application/json"
+
+    };
+
+}
+
+
+/* =====================================================
+   LOAD DONORS
+===================================================== */
+
+async function loadNearbyDonors() {
+
+    const status =
+        document.getElementById(
+            "mapStatus"
+        );
+
+
+    status.textContent =
+        "Loading...";
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE}/api/donors/nearby`,
+                {
+                    method: "GET",
+                    headers:
+                        authHeaders()
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        console.log(
+            "Nearby donor response:",
+            data
+        );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message ||
+                "Unable to load donors"
+            );
+
+        }
+
+
+        donors =
+            data.donors || [];
+
+
+        document.getElementById(
+            "donorCount"
+        ).textContent =
+            donors.length;
+
+
+        clearDonorMarkers();
+
+
+        renderDonorList();
+
+
+        addDonorsToMap();
+
+
+        status.textContent =
+            `${donors.length} Donor${
+                donors.length === 1
+                    ? ""
+                    : "s"
+            } Available`;
+
+
+    }
+    catch(error) {
+
+        console.error(
+            "Nearby donor error:",
+            error
+        );
+
+
+        status.textContent =
+            "Error";
+
+
+        document.getElementById(
+            "donorList"
+        ).innerHTML = `
+
+            <div class="empty">
+
+                ❌ ${escapeHtml(
+                    error.message
+                )}
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =====================================================
+   ADD DONORS TO MAP
+===================================================== */
+
+function addDonorsToMap() {
+
+    if (!donors.length) {
+
+        map.setView(
+            [
+                DEFAULT_LAT,
+                DEFAULT_LNG
+            ],
+            12
+        );
+
+        return;
+    }
+
+
+    const bounds =
+        L.latLngBounds([]);
+
+
+    donors.forEach(
+        (donor, index) => {
+
+            const latitude =
+                Number(
+                    donor.latitude
+                );
+
+
+            const longitude =
+                Number(
+                    donor.longitude
+                );
+
+
+            /*
+                Ignore invalid coordinates
+            */
+
+            if (
+                !Number.isFinite(latitude) ||
+                !Number.isFinite(longitude)
+            ) {
+
+                console.warn(
+                    "Invalid donor coordinates:",
+                    donor
+                );
+
+                return;
+
+            }
+
+
+            const donorIcon =
+                L.divIcon({
+
+                    className:
+                        "donor-marker",
+
+                    html: `
+
+                        <div style="
+                            width:36px;
+                            height:36px;
+                            border-radius:50%;
+                            background:#dc2626;
+                            border:4px solid white;
+                            box-shadow:
+                                0 2px 10px
+                                rgba(0,0,0,.35);
+
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+
+                            font-size:17px;
+                        ">
+
+                            🩸
+
+                        </div>
+
+                    `,
+
+                    iconSize:
+                        [36,36],
+
+                    iconAnchor:
+                        [18,18]
+
+                });
+
+
+            const marker =
+                L.marker(
+                    [
+                        latitude,
+                        longitude
+                    ],
+                    {
+                        icon:
+                            donorIcon
+                    }
+                )
+                .addTo(map);
+
+
+            /*
+                Popup
+            */
+
+            marker.bindPopup(`
+
+                <div style="
+                    min-width:190px;
+                    font-family:Arial;
+                ">
+
+                    <h3 style="
+                        margin-bottom:8px;
+                        color:#b91c1c;
+                    ">
+
+                        🩸 Available Donor
+
+                    </h3>
+
+
+                    <strong>
+                        Blood Group:
+                    </strong>
+
+                    ${escapeHtml(
+                        donor.blood_group ||
+                        "Unknown"
+                    )}
+
+                    <br><br>
+
+
+                    <strong>
+                        Location:
+                    </strong>
+
+                    ${escapeHtml(
+                        donor.location ||
+                        "Unknown"
+                    )}
+
+                    <br><br>
+
+
+                    <strong>
+                        Availability:
+                    </strong>
+
+                    <span style="
+                        color:#15803d;
+                        font-weight:bold;
+                    ">
+
+                        ${escapeHtml(
+                            donor.availability ||
+                            "Available"
+                        )}
+
+                    </span>
+
+                </div>
+
+            `);
+
+
+            /*
+                Save marker
+            */
+
+            donorMarkers.push(
+                marker
+            );
+
+
+            /*
+                Add to bounds
+            */
+
+            bounds.extend([
+                latitude,
+                longitude
+            ]);
+
+        }
+    );
+
+
+    /*
+        Automatically zoom map
+        to show every donor.
+    */
+
+    if (
+        donorMarkers.length > 0
+    ) {
+
+        map.fitBounds(
+            bounds,
+            {
+                padding:
+                    [50,50],
+
+                maxZoom:
+                    15
+            }
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   CLEAR MARKERS
+===================================================== */
+
+function clearDonorMarkers() {
+
+    donorMarkers.forEach(
+        marker => {
+
+            map.removeLayer(
+                marker
+            );
+
+        }
+    );
+
+
+    donorMarkers = [];
+
+}
+
+
+/* =====================================================
+   DONOR LIST
+===================================================== */
+
+function renderDonorList() {
+
+    const container =
+        document.getElementById(
+            "donorList"
+        );
+
+
+    if (!donors.length) {
+
+        container.innerHTML = `
+
+            <div class="empty">
+
+                🩸
+
+                <br><br>
+
+                No available donors
+                found.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        donors.map(
+            (donor,index) => `
+
+                <div
+                    class="donor-card"
+                    onclick="
+                        focusDonor(${index})
+                    ">
+
+                    <div class="blood">
+
+                        🩸
+                        ${escapeHtml(
+                            donor.blood_group ||
+                            "Unknown"
+                        )}
+
+                    </div>
+
+
+                    <div class="donor-name">
+
+                        Donor #${index + 1}
+
+                    </div>
+
+
+                    <div class="donor-info">
+
+                        📍
+                        ${escapeHtml(
+                            donor.location ||
+                            "Location unavailable"
+                        )}
+
+                        <br>
+
+
+                        🟢
+                        ${escapeHtml(
+                            donor.availability ||
+                            "Available"
+                        )}
+
+                    </div>
+
+                </div>
+
+            `
+        )
+        .join("");
+
+}
+
+
+/* =====================================================
+   FOCUS DONOR
+===================================================== */
+
+function focusDonor(index) {
+
+    const donor =
+        donors[index];
+
+
+    if (!donor) {
+        return;
+    }
+
+
+    const latitude =
+        Number(
+            donor.latitude
+        );
+
+
+    const longitude =
+        Number(
+            donor.longitude
+        );
+
+
+    if (
+        !Number.isFinite(latitude) ||
+        !Number.isFinite(longitude)
+    ) {
+
+        alert(
+            "This donor does not have valid location coordinates."
+        );
+
+        return;
+
+    }
+
+
+    map.setView(
+        [
+            latitude,
+            longitude
+        ],
+        16,
+        {
+            animate: true
+        }
+    );
+
+
+    /*
+        Find corresponding marker
+    */
+
+    const marker =
+        donorMarkers[index];
+
+
+    if (marker) {
+
+        marker.openPopup();
+
+    }
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHtml(value) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
+        return "";
+
+    }
+
+
+    return String(value)
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+
+}
+
+
+/* =====================================================
+   REFRESH
+===================================================== */
+
+document
+    .getElementById(
+        "refreshButton"
+    )
+    .addEventListener(
+        "click",
+        loadNearbyDonors
+    );
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+document
+    .getElementById(
+        "logoutButton"
+    )
+    .addEventListener(
+        "click",
+        function() {
+
+            localStorage.removeItem(
+                "lifelineToken"
+            );
+
+            localStorage.removeItem(
+                "lifelineUser"
+            );
+
+
+            window.location.href =
+                "login.html";
+
+        }
+    );
+
+
+/* =====================================================
+   START
+===================================================== */
+
+initializeMap();
+
+loadNearbyDonors();
+
+
+/*
+    Automatically refresh
+    donor positions every 30 seconds.
+*/
+
+setInterval(
+    loadNearbyDonors,
+    30000
+);
+
+</script>
+
+
+</body>
+
+</html>

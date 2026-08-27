@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>LifeLine Login</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #f5f7fa,
+                    #ffe5e5
+                );
+        }
+
+        .container {
+
+            width: 100%;
+            max-width: 430px;
+
+            background: white;
+
+            padding: 35px;
+
+            border-radius: 15px;
+
+            box-shadow:
+                0 8px 30px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+
+            text-align: center;
+
+            color: #d32f2f;
+
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+
+            text-align: center;
+
+            color: #777;
+
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+
+            margin-bottom: 18px;
+        }
+
+        label {
+
+            display: block;
+
+            margin-bottom: 7px;
+
+            font-weight: bold;
+
+            color: #444;
+        }
+
+        input,
+        select {
+
+            width: 100%;
+
+            padding: 12px;
+
+            border: 1px solid #ddd;
+
+            border-radius: 7px;
+
+            font-size: 15px;
+        }
+
+        input:focus,
+        select:focus {
+
+            outline: none;
+
+            border-color: #d32f2f;
+        }
+
+        button {
+
+            width: 100%;
+
+            padding: 14px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #d32f2f;
+
+            color: white;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+        button:hover {
+
+            background: #b71c1c;
+        }
+
+        button:disabled {
+
+            background: #999;
+
+            cursor: not-allowed;
+        }
+
+        #message {
+
+            display: none;
+
+            padding: 12px;
+
+            border-radius: 7px;
+
+            margin-bottom: 18px;
+
+            text-align: center;
+        }
+
+        .success {
+
+            display: block !important;
+
+            background: #e8f5e9;
+
+            color: #2e7d32;
+        }
+
+        .error {
+
+            display: block !important;
+
+            background: #ffebee;
+
+            color: #c62828;
+        }
+
+        .register-link {
+
+            text-align: center;
+
+            margin-top: 20px;
+
+            color: #666;
+        }
+
+        .register-link a {
+
+            color: #d32f2f;
+
+            text-decoration: none;
+
+            font-weight: bold;
+        }
+
+        .loading {
+
+            opacity: 0.7;
+
+            pointer-events: none;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+    <h1>🩸 LifeLine</h1>
+
+    <p class="subtitle">
+        Login to your LifeLine account
+    </p>
+
+
+    <div id="message"></div>
+
+
+    <form id="loginForm">
+
+
+        <!-- ROLE -->
+
+        <div class="form-group">
+
+            <label for="role">
+                Login As
+            </label>
+
+            <select id="role" required>
+
+                <option value="">
+                    Select role
+                </option>
+
+                <option value="donor">
+                    🩸 Donor
+                </option>
+
+                <option value="hospital">
+                    🏥 Hospital
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- EMAIL -->
+
+        <div class="form-group">
+
+            <label for="email">
+                Email
+            </label>
+
+            <input
+                type="email"
+                id="email"
+                placeholder="Enter email"
+                autocomplete="email"
+                required
+            >
+
+        </div>
+
+
+        <!-- PASSWORD -->
+
+        <div class="form-group">
+
+            <label for="password">
+                Password
+            </label>
+
+            <input
+                type="password"
+                id="password"
+                placeholder="Enter password"
+                autocomplete="current-password"
+                required
+            >
+
+        </div>
+
+
+        <button
+            type="submit"
+            id="loginButton"
+        >
+            Login
+        </button>
+
+
+    </form>
+
+
+    <div class="register-link">
+
+        Don't have an account?
+
+        <a href="test-register.html">
+            Register
+        </a>
+
+    </div>
+
+</div>
+
+
+<script>
+
+
+// =====================================================
+// LIFELINE LOGIN
+// =====================================================
+
+const API_BASE_URL =
+    "http://localhost:5000";
+
+
+const loginForm =
+    document.getElementById("loginForm");
+
+
+const messageBox =
+    document.getElementById("message");
+
+
+const loginButton =
+    document.getElementById("loginButton");
+
+
+// =====================================================
+// SHOW MESSAGE
+// =====================================================
+
+function showMessage(
+    message,
+    type
+) {
+
+    messageBox.className = type;
+
+    messageBox.textContent = message;
+
+    messageBox.style.display = "block";
+}
+
+
+// =====================================================
+// CLEAR MESSAGE
+// =====================================================
+
+function clearMessage() {
+
+    messageBox.className = "";
+
+    messageBox.textContent = "";
+
+    messageBox.style.display = "none";
+}
+
+
+// =====================================================
+// CLEAR OLD LOGIN DATA
+// =====================================================
+
+function clearOldLoginData() {
+
+    // localStorage
+
+    localStorage.removeItem("token");
+
+    localStorage.removeItem("lifelineToken");
+
+    localStorage.removeItem("authToken");
+
+    localStorage.removeItem("jwtToken");
+
+    localStorage.removeItem("user");
+
+    localStorage.removeItem("lifelineUser");
+
+    // sessionStorage
+
+    sessionStorage.removeItem("token");
+
+    sessionStorage.removeItem("lifelineToken");
+
+    sessionStorage.removeItem("authToken");
+
+    sessionStorage.removeItem("jwtToken");
+
+    sessionStorage.removeItem("user");
+
+    sessionStorage.removeItem("lifelineUser");
+}
+
+
+// =====================================================
+// SAVE LOGIN DATA
+// =====================================================
+
+function saveLoginData(
+    token,
+    user
+) {
+
+    const userString =
+        JSON.stringify(user);
+
+
+    // -------------------------------------------------
+    // LOCAL STORAGE
+    // -------------------------------------------------
+
+    localStorage.setItem(
+        "token",
+        token
+    );
+
+    localStorage.setItem(
+        "lifelineToken",
+        token
+    );
+
+    localStorage.setItem(
+        "authToken",
+        token
+    );
+
+    localStorage.setItem(
+        "jwtToken",
+        token
+    );
+
+
+    localStorage.setItem(
+        "user",
+        userString
+    );
+
+    localStorage.setItem(
+        "lifelineUser",
+        userString
+    );
+
+
+    // -------------------------------------------------
+    // SESSION STORAGE
+    // -------------------------------------------------
+
+    sessionStorage.setItem(
+        "token",
+        token
+    );
+
+    sessionStorage.setItem(
+        "lifelineToken",
+        token
+    );
+
+    sessionStorage.setItem(
+        "authToken",
+        token
+    );
+
+    sessionStorage.setItem(
+        "jwtToken",
+        token
+    );
+
+
+    sessionStorage.setItem(
+        "user",
+        userString
+    );
+
+    sessionStorage.setItem(
+        "lifelineUser",
+        userString
+    );
+
+
+    console.log(
+        "✅ Login data saved"
+    );
+
+    console.log(
+        "Token:",
+        token
+    );
+
+    console.log(
+        "User:",
+        user
+    );
+}
+
+
+// =====================================================
+// LOGIN FORM
+// =====================================================
+
+loginForm.addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+
+        clearMessage();
+
+
+        // -------------------------------------------------
+        // GET FORM VALUES
+        // -------------------------------------------------
+
+        const role =
+            document
+                .getElementById("role")
+                .value
+                .trim()
+                .toLowerCase();
+
+
+        const email =
+            document
+                .getElementById("email")
+                .value
+                .trim();
+
+
+        const password =
+            document
+                .getElementById("password")
+                .value;
+
+
+        // -------------------------------------------------
+        // VALIDATION
+        // -------------------------------------------------
+
+        if (!role) {
+
+            showMessage(
+                "Please select your role.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (!email) {
+
+            showMessage(
+                "Please enter your email.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (!password) {
+
+            showMessage(
+                "Please enter your password.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        // -------------------------------------------------
+        // LOADING
+        // -------------------------------------------------
+
+        loginButton.disabled = true;
+
+        loginButton.textContent =
+            "Logging in...";
+
+
+        try {
+
+
+            // =================================================
+            // SEND LOGIN REQUEST
+            // =================================================
+
+            const response =
+                await fetch(
+                    API_BASE_URL +
+                    "/api/auth/login",
+                    {
+
+                        method: "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        body: JSON.stringify({
+
+                            role: role,
+
+                            email: email,
+
+                            password: password
+
+                        })
+
+                    }
+                );
+
+
+            // =================================================
+            // READ SERVER RESPONSE
+            // =================================================
+
+            let data;
+
+            try {
+
+                data =
+                    await response.json();
+
+            } catch (jsonError) {
+
+                console.error(
+                    "Invalid JSON response:",
+                    jsonError
+                );
+
+                showMessage(
+                    "Invalid response from LifeLine server.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            console.log(
+                "================================"
+            );
+
+            console.log(
+                "LIFELINE LOGIN RESPONSE"
+            );
+
+            console.log(
+                "Status:",
+                response.status
+            );
+
+            console.log(
+                "Data:",
+                data
+            );
+
+            console.log(
+                "================================"
+            );
+
+
+            // =================================================
+            // LOGIN FAILED
+            // =================================================
+
+            if (!response.ok) {
+
+                showMessage(
+                    data.message ||
+                    "Invalid email or password.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            // =================================================
+            // CHECK TOKEN
+            // =================================================
+
+            if (!data.token) {
+
+                console.error(
+                    "Server did not return token:",
+                    data
+                );
+
+                showMessage(
+                    "Login succeeded, but the server did not return a login token.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            // =================================================
+            // CHECK USER
+            // =================================================
+
+            if (!data.user) {
+
+                console.error(
+                    "Server did not return user:",
+                    data
+                );
+
+                showMessage(
+                    "Login succeeded, but user information is missing.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            // =================================================
+            // CLEAR OLD DATA
+            // =================================================
+
+            clearOldLoginData();
+
+
+            // =================================================
+            // SAVE NEW LOGIN DATA
+            // =================================================
+
+            saveLoginData(
+                data.token,
+                data.user
+            );
+
+
+            // =================================================
+            // VERIFY SAVED DATA
+            // =================================================
+
+            const savedToken =
+                localStorage.getItem(
+                    "lifelineToken"
+                );
+
+
+            const savedUser =
+                localStorage.getItem(
+                    "lifelineUser"
+                );
+
+
+            console.log(
+                "Saved Token:",
+                savedToken
+            );
+
+            console.log(
+                "Saved User:",
+                savedUser
+            );
+
+
+            if (!savedToken || !savedUser) {
+
+                showMessage(
+                    "Login completed but login data could not be saved.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            // =================================================
+            // GET ROLE
+            // =================================================
+
+            const loggedInRole =
+                String(
+                    data.user.role
+                )
+                .trim()
+                .toLowerCase();
+
+
+            // =================================================
+            // SUCCESS MESSAGE
+            // =================================================
+
+            showMessage(
+                "✅ Login successful! Redirecting...",
+                "success"
+            );
+
+
+            // =================================================
+            // REDIRECT
+            // =================================================
+
+            setTimeout(
+                function() {
+
+
+                    // -------------------------------------------------
+                    // DONOR
+                    // -------------------------------------------------
+
+                    if (
+                        loggedInRole ===
+                        "donor"
+                    ) {
+
+                        window.location.replace(
+                            "donor-dashboard.html"
+                        );
+
+                        return;
+                    }
+
+
+                    // -------------------------------------------------
+                    // HOSPITAL
+                    // -------------------------------------------------
+
+                    if (
+                        loggedInRole ===
+                        "hospital"
+                    ) {
+
+                        window.location.replace(
+                            "hospital-dashboard.html"
+                        );
+
+                        return;
+                    }
+
+
+                    // -------------------------------------------------
+                    // UNKNOWN ROLE
+                    // -------------------------------------------------
+
+                    console.error(
+                        "Unknown role:",
+                        loggedInRole
+                    );
+
+
+                    showMessage(
+                        "Unknown account role: " +
+                        loggedInRole,
+                        "error"
+                    );
+
+
+                },
+                500
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "================================"
+            );
+
+            console.error(
+                "LIFELINE LOGIN ERROR"
+            );
+
+            console.error(
+                error
+            );
+
+            console.error(
+                "================================"
+            );
+
+
+            showMessage(
+                "Unable to connect to LifeLine server. Make sure your backend is running on port 5000.",
+                "error"
+            );
+
+
+        } finally {
+
+            loginButton.disabled = false;
+
+            loginButton.textContent =
+                "Login";
+
+        }
+
+    });
+
+
+// =====================================================
+// PAGE LOAD DEBUG
+// =====================================================
+
+console.log(
+    "LifeLine Login Page Loaded"
+);
+
+console.log(
+    "API:",
+    API_BASE_URL
+);
+
+</script>
+
+
+</body>
+
+</html>

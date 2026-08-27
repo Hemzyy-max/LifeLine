@@ -1,0 +1,4904 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>LifeLine - Donor Dashboard</title>
+
+    <style>
+
+        /* =====================================================
+           GLOBAL
+        ===================================================== */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        :root {
+            --primary: #8b1e3f;
+            --primary-dark: #721735;
+            --primary-light: #c52858;
+
+            --background: #f5f7fb;
+            --card: #ffffff;
+
+            --text: #222222;
+            --text-dark: #333333;
+            --text-medium: #555555;
+            --text-light: #777777;
+            --border: #e5e7eb;
+
+            --success: #166534;
+            --warning: #856404;
+            --danger: #991b1b;
+            --info: #1e40af;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        header {
+            width: 100%;
+            min-height: 72px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #7b1e3a,
+                    #b91c4c
+                );
+
+            color: white;
+
+            padding: 14px 35px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            box-shadow:
+                0 3px 15px rgba(0, 0, 0, 0.15);
+
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            font-size: 25px;
+            font-weight: 700;
+
+            white-space: nowrap;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+
+            gap: 14px;
+        }
+
+        .online {
+            display: flex;
+            align-items: center;
+
+            min-height: 38px;
+
+            padding: 8px 14px;
+
+            border-radius: 20px;
+
+            background:
+                rgba(255, 255, 255, 0.15);
+
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+
+        /* =====================================================
+           NOTIFICATIONS
+        ===================================================== */
+
+        .notification-wrapper {
+            position: relative;
+        }
+
+        .notification-btn {
+            width: 44px;
+            height: 44px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: none;
+            border-radius: 50%;
+
+            background:
+                rgba(255, 255, 255, 0.15);
+
+            color: white;
+
+            font-size: 20px;
+
+            position: relative;
+
+            transition: 0.2s;
+        }
+
+        .notification-btn:hover {
+            background:
+                rgba(255, 255, 255, 0.25);
+        }
+
+        .notification-badge {
+            position: absolute;
+
+            top: -3px;
+            right: -3px;
+
+            min-width: 20px;
+            height: 20px;
+
+            padding: 0 5px;
+
+            display: none;
+            align-items: center;
+            justify-content: center;
+
+            background: #ff1744;
+            color: white;
+
+            border-radius: 20px;
+
+            font-size: 11px;
+            font-weight: 700;
+
+            border: 2px solid white;
+        }
+
+        .notification-badge.show {
+            display: flex;
+        }
+
+        .notification-panel {
+            position: absolute;
+
+            top: 55px;
+            right: 0;
+
+            width: 380px;
+            max-width: calc(100vw - 30px);
+
+            background: white;
+            color: var(--text);
+
+            border-radius: 14px;
+
+            box-shadow:
+                0 10px 35px rgba(0, 0, 0, 0.20);
+
+            display: none;
+
+            overflow: hidden;
+
+            z-index: 2000;
+        }
+
+        .notification-panel.show {
+            display: block;
+        }
+
+        .notification-header {
+            min-height: 58px;
+
+            padding: 15px 17px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 15px;
+
+            border-bottom: 1px solid #eeeeee;
+        }
+
+        .notification-header h3 {
+            font-size: 17px;
+            color: var(--text-dark);
+        }
+
+        .read-all-btn {
+            border: none;
+            background: transparent;
+
+            color: var(--primary-light);
+
+            font-size: 12px;
+            font-weight: 700;
+
+            white-space: nowrap;
+        }
+
+        .read-all-btn:hover {
+            text-decoration: underline;
+        }
+
+        .notifications-list {
+            max-height: 430px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 15px 16px;
+
+            border-bottom: 1px solid #eeeeee;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+        .notification-item:hover {
+            background: #fafafa;
+        }
+
+        .notification-item.unread {
+            background: #fff4f6;
+            border-left: 4px solid var(--primary-light);
+        }
+
+        .notification-item-title {
+            margin-bottom: 6px;
+
+            font-size: 14px;
+            font-weight: 700;
+
+            color: var(--text-dark);
+
+            line-height: 1.4;
+        }
+
+        .notification-item-message {
+            color: #666666;
+
+            font-size: 13px;
+
+            line-height: 1.5;
+        }
+
+        .notification-item-time {
+            margin-top: 8px;
+
+            color: #999999;
+
+            font-size: 11px;
+        }
+
+        .notification-empty,
+        .notification-loading {
+            text-align: center;
+            padding: 35px 20px;
+
+            color: #888888;
+
+            line-height: 1.6;
+        }
+
+
+        /* =====================================================
+           LOGOUT
+        ===================================================== */
+
+        .logout-btn {
+            min-height: 38px;
+
+            padding: 9px 18px;
+
+            border: none;
+            border-radius: 8px;
+
+            background: white;
+            color: var(--primary);
+
+            font-weight: 700;
+
+            transition: 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #f1f1f1;
+            transform: translateY(-1px);
+        }
+
+
+        /* =====================================================
+           MAIN CONTAINER
+        ===================================================== */
+
+        .container {
+            width: 100%;
+            max-width: 1250px;
+
+            margin: 0 auto;
+
+            padding:
+                35px 25px 50px;
+        }
+
+
+        /* =====================================================
+           WELCOME
+        ===================================================== */
+
+        .welcome {
+            margin-bottom: 22px;
+        }
+
+        .welcome h1 {
+            margin-bottom: 8px;
+
+            color: #252525;
+
+            font-size: 30px;
+            line-height: 1.2;
+
+            font-weight: 700;
+        }
+
+        .welcome p {
+            color: var(--text-light);
+
+            font-size: 15px;
+
+            line-height: 1.6;
+        }
+
+
+        /* =====================================================
+           DONOR LOCATION
+        ===================================================== */
+
+        .location-card {
+            width: 100%;
+
+            margin-bottom: 28px;
+
+            padding: 18px 20px;
+
+            background: white;
+
+            border: 1px solid var(--border);
+
+            border-left: 5px solid var(--primary-light);
+
+            border-radius: 14px;
+
+            box-shadow:
+                0 4px 15px rgba(0, 0, 0, 0.06);
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 20px;
+        }
+
+        .location-content {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .location-title {
+            margin-bottom: 5px;
+
+            color: var(--text-dark);
+
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .location-status {
+            color: var(--text-light);
+
+            font-size: 13px;
+
+            line-height: 1.5;
+        }
+
+        .location-status.success {
+            color: var(--success);
+        }
+
+        .location-status.error {
+            color: var(--danger);
+        }
+
+        .location-status.loading {
+            color: var(--info);
+        }
+
+        .location-button {
+            flex-shrink: 0;
+
+            min-height: 40px;
+
+            padding: 10px 16px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #8b1e3f,
+                    #c52858
+                );
+
+            color: white;
+
+            font-size: 13px;
+            font-weight: 700;
+
+            transition: 0.2s;
+        }
+
+        .location-button:hover {
+            transform: translateY(-1px);
+            opacity: 0.93;
+        }
+
+        .location-button:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+
+        /* =====================================================
+           STATS
+        ===================================================== */
+
+        .stats {
+            width: 100%;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(5, minmax(0, 1fr));
+
+            gap: 18px;
+
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            min-height: 155px;
+
+            background: var(--card);
+
+            padding: 21px;
+
+            border-radius: 14px;
+
+            box-shadow:
+                0 4px 15px rgba(0, 0, 0, 0.07);
+
+            border-left: 5px solid var(--primary-light);
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            margin-bottom: 10px;
+
+            border-radius: 10px;
+
+            background: #fff0f3;
+
+            font-size: 23px;
+        }
+
+        .stat-number {
+            margin-bottom: 5px;
+
+            font-size: 28px;
+            line-height: 1.1;
+
+            font-weight: 700;
+
+            color: var(--text-dark);
+        }
+
+        .stat-label {
+            color: var(--text-light);
+
+            font-size: 13px;
+
+            line-height: 1.4;
+        }
+
+
+        /* =====================================================
+           SECTIONS
+        ===================================================== */
+
+        .section {
+            width: 100%;
+
+            background: var(--card);
+
+            padding: 25px;
+
+            border-radius: 16px;
+
+            box-shadow:
+                0 4px 15px rgba(0, 0, 0, 0.06);
+
+            margin-bottom: 28px;
+        }
+
+        .section-header {
+            min-height: 48px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 20px;
+
+            margin-bottom: 22px;
+        }
+
+        .section-header > div {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .section-header h2 {
+            margin-bottom: 5px;
+
+            color: var(--text-dark);
+
+            font-size: 21px;
+            line-height: 1.3;
+
+            font-weight: 700;
+        }
+
+        .section-header p {
+            color: var(--text-light);
+
+            font-size: 14px;
+
+            line-height: 1.5;
+        }
+
+        .refresh-btn {
+            flex-shrink: 0;
+
+            min-height: 40px;
+
+            padding: 10px 15px;
+
+            border: none;
+            border-radius: 8px;
+
+            background: #f1f3f7;
+            color: #333333;
+
+            font-size: 13px;
+            font-weight: 700;
+
+            transition: 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background: #e5e7eb;
+        }
+
+
+        /* =====================================================
+           FILTERS
+        ===================================================== */
+
+        .filters {
+            width: 100%;
+
+            display: grid;
+
+            grid-template-columns:
+                minmax(0, 1fr)
+                180px;
+
+            gap: 12px;
+
+            margin-bottom: 22px;
+        }
+
+        .search,
+        .blood-filter {
+            width: 100%;
+
+            min-height: 44px;
+
+            padding: 11px 14px;
+
+            border: 1px solid #dddddd;
+
+            border-radius: 8px;
+
+            outline: none;
+
+            background: white;
+
+            color: #333333;
+
+            font-size: 14px;
+
+            transition: 0.2s;
+        }
+
+        .search:focus,
+        .blood-filter:focus {
+            border-color: var(--primary-light);
+
+            box-shadow:
+                0 0 0 3px rgba(185, 28, 76, 0.08);
+        }
+
+
+        /* =====================================================
+           REQUEST GRID
+        ===================================================== */
+
+        .requests-grid {
+            width: 100%;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(auto-fit, minmax(300px, 1fr));
+
+            gap: 18px;
+
+            align-items: stretch;
+        }
+
+        .request-card {
+            min-width: 0;
+
+            border: 1px solid var(--border);
+
+            border-radius: 14px;
+
+            padding: 20px;
+
+            display: flex;
+            flex-direction: column;
+
+            transition: 0.2s;
+
+            position: relative;
+        }
+
+        .request-card:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 6px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        /* =====================================================
+           NEAREST REQUEST
+        ===================================================== */
+
+        .request-card.nearest {
+            border: 2px solid var(--primary-light);
+
+            box-shadow:
+                0 7px 25px rgba(197, 40, 88, 0.18);
+
+            background:
+                linear-gradient(
+                    180deg,
+                    #fff8fa,
+                    #ffffff
+                );
+        }
+
+        .nearest-label {
+            position: absolute;
+
+            top: -11px;
+            left: 18px;
+
+            padding: 5px 11px;
+
+            border-radius: 20px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #8b1e3f,
+                    #c52858
+                );
+
+            color: white;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            box-shadow:
+                0 3px 8px rgba(139, 30, 63, 0.25);
+        }
+
+
+        /* =====================================================
+           REQUEST TOP
+        ===================================================== */
+
+        .request-top {
+            width: 100%;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 12px;
+
+            margin-bottom: 15px;
+        }
+
+        .blood-badge {
+            flex-shrink: 0;
+
+            background: #ffe4ea;
+            color: #a31542;
+
+            font-size: 21px;
+            font-weight: 700;
+
+            padding: 8px 13px;
+
+            border-radius: 10px;
+        }
+
+        .urgency {
+            flex-shrink: 0;
+
+            padding: 6px 10px;
+
+            border-radius: 20px;
+
+            font-size: 11px;
+            font-weight: 700;
+
+            text-transform: uppercase;
+
+            white-space: nowrap;
+        }
+
+        .emergency {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .urgent {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .normal {
+            background: #e5f3ff;
+            color: #1261a0;
+        }
+
+        .hospital-name {
+            margin-bottom: 12px;
+
+            color: var(--text-dark);
+
+            font-size: 17px;
+            font-weight: 700;
+
+            line-height: 1.4;
+        }
+
+        .request-info {
+            color: var(--text-medium);
+
+            font-size: 14px;
+
+            line-height: 1.9;
+        }
+
+        .request-info strong {
+            color: #444444;
+        }
+
+
+        /* =====================================================
+           DISTANCE
+        ===================================================== */
+
+        .distance-box {
+            width: 100%;
+
+            margin-top: 14px;
+
+            padding: 12px;
+
+            border-radius: 9px;
+
+            background: #f8f9fb;
+
+            border: 1px solid #eeeeee;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 12px;
+        }
+
+        .distance-title {
+            color: #777777;
+
+            font-size: 11px;
+
+            text-transform: uppercase;
+
+            margin-bottom: 3px;
+        }
+
+        .distance-value {
+            color: var(--text-dark);
+
+            font-size: 15px;
+
+            font-weight: 700;
+        }
+
+        .distance-icon {
+            font-size: 22px;
+        }
+
+        .route-btn {
+            width: 100%;
+
+            min-height: 40px;
+
+            margin-top: 9px;
+
+            padding: 9px;
+
+            border: 1px solid #d9d9d9;
+
+            border-radius: 8px;
+
+            background: white;
+
+            color: var(--primary);
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            transition: 0.2s;
+        }
+
+        .route-btn:hover {
+            background: #fff4f6;
+
+            border-color: var(--primary-light);
+        }
+
+        .route-btn.disabled {
+            color: #999999;
+
+            background: #f5f5f5;
+
+            cursor: not-allowed;
+        }
+
+
+        /* =====================================================
+           RESPOND BUTTON
+        ===================================================== */
+
+        .respond-btn {
+            width: 100%;
+
+            min-height: 43px;
+
+            margin-top: auto;
+            padding: 11px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #8b1e3f,
+                    #c52858
+                );
+
+            color: white;
+
+            border: none;
+            border-radius: 8px;
+
+            font-weight: 700;
+
+            transition: 0.2s;
+        }
+
+        .request-card .respond-btn {
+            margin-top: 16px;
+        }
+
+        .respond-btn:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
+        }
+
+        .respond-btn:disabled {
+            background: #aaaaaa;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+
+        /* =====================================================
+           RESPONSE LIST
+        ===================================================== */
+
+        .responses-list {
+            width: 100%;
+
+            display: flex;
+            flex-direction: column;
+
+            gap: 16px;
+        }
+
+        .response-card {
+            width: 100%;
+
+            border: 1px solid var(--border);
+
+            border-radius: 14px;
+
+            padding: 20px;
+        }
+
+        .response-header {
+            width: 100%;
+
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+
+            gap: 15px;
+
+            margin-bottom: 15px;
+        }
+
+        .response-title {
+            min-width: 0;
+
+            color: var(--text-dark);
+
+            font-size: 17px;
+            font-weight: 700;
+
+            line-height: 1.5;
+        }
+
+        .response-title small {
+            color: #888888;
+
+            font-size: 11px;
+            font-weight: 400;
+        }
+
+        .status {
+            flex-shrink: 0;
+
+            padding: 6px 12px;
+
+            border-radius: 20px;
+
+            font-size: 11px;
+            font-weight: 700;
+
+            text-transform: uppercase;
+
+            white-space: nowrap;
+        }
+
+        .status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.accepted {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status.rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status.completed {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .response-details {
+            width: 100%;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+
+            gap: 12px;
+        }
+
+        .detail {
+            min-width: 0;
+
+            background: #f8f9fb;
+
+            padding: 12px;
+
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            margin-bottom: 5px;
+
+            color: #888888;
+
+            font-size: 10px;
+            line-height: 1.3;
+
+            text-transform: uppercase;
+        }
+
+        .detail-value {
+            color: var(--text-dark);
+
+            font-size: 14px;
+            font-weight: 700;
+
+            line-height: 1.5;
+
+            word-break: break-word;
+        }
+
+        .response-message {
+            width: 100%;
+
+            margin-top: 15px;
+
+            padding: 12px;
+
+            border-radius: 8px;
+
+            background: #f8f9fb;
+
+            color: var(--text-medium);
+
+            font-size: 14px;
+
+            line-height: 1.6;
+        }
+
+
+        /* =====================================================
+           EMPTY / LOADING / ERROR
+        ===================================================== */
+
+        .loading {
+            width: 100%;
+
+            padding: 35px 20px;
+
+            text-align: center;
+
+            color: var(--text-light);
+
+            line-height: 1.6;
+        }
+
+        .empty {
+            width: 100%;
+
+            padding: 40px 20px;
+
+            text-align: center;
+
+            color: var(--text-light);
+
+            line-height: 1.7;
+        }
+
+        .error {
+            width: 100%;
+
+            padding: 14px;
+
+            border-radius: 8px;
+
+            background: #fee2e2;
+            color: #991b1b;
+
+            line-height: 1.5;
+
+            word-break: break-word;
+        }
+
+
+        /* =====================================================
+           TOAST
+        ===================================================== */
+
+        #toast {
+            position: fixed;
+
+            right: 25px;
+            bottom: 25px;
+
+            max-width: 400px;
+
+            padding: 14px 20px;
+
+            border-radius: 10px;
+
+            background: #222222;
+            color: white;
+
+            display: none;
+
+            z-index: 9999;
+
+            box-shadow:
+                0 5px 20px rgba(0, 0, 0, 0.20);
+
+            line-height: 1.5;
+        }
+
+        #toast.show {
+            display: block;
+        }
+
+
+        /* =====================================================
+           TABLET
+        ===================================================== */
+
+        @media (max-width: 1100px) {
+
+            .stats {
+                grid-template-columns:
+                    repeat(3, minmax(0, 1fr));
+            }
+
+        }
+
+
+        /* =====================================================
+           TABLET SMALL
+        ===================================================== */
+
+        @media (max-width: 800px) {
+
+            header {
+                padding: 14px 20px;
+            }
+
+            .online {
+                display: none;
+            }
+
+            .stats {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+
+            .response-details {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+
+            .location-card {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .location-button {
+                width: 100%;
+            }
+
+        }
+
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        @media (max-width: 600px) {
+
+            header {
+                min-height: 65px;
+
+                padding:
+                    12px 15px;
+            }
+
+            .logo {
+                font-size: 21px;
+            }
+
+            .header-right {
+                gap: 8px;
+            }
+
+            .notification-btn {
+                width: 40px;
+                height: 40px;
+            }
+
+            .logout-btn {
+                min-height: 36px;
+
+                padding:
+                    8px 12px;
+
+                font-size: 12px;
+            }
+
+            .container {
+                padding:
+                    25px 15px 40px;
+            }
+
+            .welcome h1 {
+                font-size: 26px;
+            }
+
+            .welcome p {
+                font-size: 14px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+
+            .stat-card {
+                min-height: 130px;
+            }
+
+            .section {
+                padding: 18px;
+                border-radius: 13px;
+            }
+
+            .section-header {
+                align-items: flex-start;
+
+                flex-direction: column;
+
+                gap: 12px;
+            }
+
+            .section-header h2 {
+                font-size: 19px;
+            }
+
+            .refresh-btn {
+                width: 100%;
+            }
+
+            .filters {
+                grid-template-columns: 1fr;
+            }
+
+            .requests-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .request-top {
+                align-items: flex-start;
+            }
+
+            .response-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .response-details {
+                grid-template-columns: 1fr;
+            }
+
+            .notification-panel {
+                position: fixed;
+
+                top: 70px;
+                right: 15px;
+
+                width:
+                    calc(100vw - 30px);
+            }
+
+            #toast {
+                right: 15px;
+                bottom: 15px;
+
+                max-width:
+                    calc(100vw - 30px);
+            }
+
+        }
+
+
+        /* =====================================================
+           VERY SMALL MOBILE
+        ===================================================== */
+
+        @media (max-width: 380px) {
+
+            .logo {
+                font-size: 19px;
+            }
+
+            .logout-btn {
+                padding:
+                    8px 10px;
+            }
+
+            .blood-badge {
+                font-size: 18px;
+            }
+
+            .urgency {
+                font-size: 10px;
+                padding: 5px 8px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<header>
+
+    <div class="logo">
+        🩸 LifeLine
+    </div>
+
+
+    <div class="header-right">
+
+        <div class="online">
+            🟢 LifeLine System Online
+        </div>
+
+
+        <!-- NOTIFICATIONS -->
+
+        <div class="notification-wrapper">
+
+            <button
+                class="notification-btn"
+                id="notificationButton"
+                onclick="toggleNotifications()"
+                title="Notifications"
+                type="button"
+            >
+                🔔
+
+                <span
+                    id="notificationBadge"
+                    class="notification-badge"
+                >
+                    0
+                </span>
+
+            </button>
+
+
+            <div
+                id="notificationPanel"
+                class="notification-panel"
+            >
+
+                <div class="notification-header">
+
+                    <h3>
+                        🔔 Notifications
+                    </h3>
+
+                    <button
+                        class="read-all-btn"
+                        onclick="markAllNotificationsRead()"
+                        type="button"
+                    >
+                        Mark all as read
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="notificationsList"
+                    class="notifications-list"
+                >
+
+                    <div class="notification-loading">
+                        Loading notifications...
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- LOGOUT -->
+
+        <button
+            class="logout-btn"
+            onclick="logout()"
+            type="button"
+        >
+            Logout
+        </button>
+
+    </div>
+
+</header>
+
+
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<main class="container">
+
+
+    <!-- WELCOME -->
+
+    <section class="welcome">
+
+        <h1>
+            Donor Dashboard
+        </h1>
+
+        <p id="welcomeText">
+            Find blood requests and help patients in need.
+        </p>
+
+    </section>
+
+
+
+    <!-- =================================================
+         DONOR LOCATION
+    ================================================= -->
+
+    <section class="location-card">
+
+        <div class="location-content">
+
+            <div class="location-title">
+                📍 Donor Location
+            </div>
+
+            <div
+                id="locationStatus"
+                class="location-status"
+            >
+                Detecting your location...
+            </div>
+
+        </div>
+
+
+        <button
+            id="locationButton"
+            class="location-button"
+            onclick="updateDonorLocation()"
+            type="button"
+        >
+            📍 Update Location
+        </button>
+
+    </section>
+
+
+
+    <!-- =================================================
+         STATISTICS
+    ================================================= -->
+
+    <section class="stats">
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                🩸
+            </div>
+
+            <div
+                class="stat-number"
+                id="availableCount"
+            >
+                0
+            </div>
+
+            <div class="stat-label">
+                Available Requests
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                📤
+            </div>
+
+            <div
+                class="stat-number"
+                id="responseCount"
+            >
+                0
+            </div>
+
+            <div class="stat-label">
+                My Responses
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                ⏳
+            </div>
+
+            <div
+                class="stat-number"
+                id="pendingCount"
+            >
+                0
+            </div>
+
+            <div class="stat-label">
+                Pending Responses
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                ✅
+            </div>
+
+            <div
+                class="stat-number"
+                id="acceptedCount"
+            >
+                0
+            </div>
+
+            <div class="stat-label">
+                Accepted
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                🏁
+            </div>
+
+            <div
+                class="stat-number"
+                id="completedCount"
+            >
+                0
+            </div>
+
+            <div class="stat-label">
+                Donations Completed
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         AVAILABLE REQUESTS
+    ================================================= -->
+
+    <section class="section">
+
+        <div class="section-header">
+
+            <div>
+
+                <h2>
+                    🩸 Available Blood Requests
+                </h2>
+
+                <p>
+                    Requests are sorted by distance from your location.
+                    The nearest request is highlighted.
+                </p>
+
+            </div>
+
+
+            <button
+                class="refresh-btn"
+                onclick="loadAvailableRequests()"
+                type="button"
+            >
+                🔄 Refresh
+            </button>
+
+        </div>
+
+
+        <!-- FILTERS -->
+
+        <div class="filters">
+
+            <input
+                type="text"
+                id="searchInput"
+                class="search"
+                placeholder="🔎 Search hospital or location..."
+                oninput="filterRequests()"
+            >
+
+
+            <select
+                id="bloodFilter"
+                class="blood-filter"
+                onchange="filterRequests()"
+            >
+
+                <option value="">
+                    All Blood Groups
+                </option>
+
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+
+            </select>
+
+        </div>
+
+
+        <!-- REQUESTS -->
+
+        <div
+            id="requestsContainer"
+            class="requests-grid"
+        >
+
+            <div class="loading">
+                Loading blood requests...
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         MY RESPONSES
+    ================================================= -->
+
+    <section class="section">
+
+        <div class="section-header">
+
+            <div>
+
+                <h2>
+                    📤 My Blood Responses
+                </h2>
+
+                <p>
+                    Track the requests you responded to.
+                </p>
+
+            </div>
+
+
+            <button
+                class="refresh-btn"
+                onclick="loadMyResponses()"
+                type="button"
+            >
+                🔄 Refresh
+            </button>
+
+        </div>
+
+
+        <div
+            id="responsesContainer"
+            class="responses-list"
+        >
+
+            <div class="loading">
+                Loading your responses...
+            </div>
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+
+<!-- TOAST -->
+
+<div id="toast"></div>
+
+
+
+<script>
+
+/* =====================================================
+   CONFIGURATION
+===================================================== */
+
+const API_BASE_URL =
+    "http://localhost:5000/api";
+
+
+/* =====================================================
+   LOCATION STATE
+===================================================== */
+
+let donorLocation = null;
+
+let locationReady = false;
+
+
+/* =====================================================
+   REQUEST STATE
+===================================================== */
+
+let allRequests = [];
+
+
+/* =====================================================
+   NOTIFICATION STATE
+===================================================== */
+
+let notifications = [];
+
+
+/* =====================================================
+   TOKEN
+===================================================== */
+
+function getToken() {
+
+    return (
+        localStorage.getItem("lifelineToken") ||
+        localStorage.getItem("token") ||
+        localStorage.getItem("authToken") ||
+        localStorage.getItem("accessToken") ||
+        localStorage.getItem("jwt")
+    );
+
+}
+
+
+/* =====================================================
+   USER
+===================================================== */
+
+function getUser() {
+
+    const possibleKeys = [
+        "lifelineUser",
+        "user",
+        "currentUser",
+        "loggedInUser"
+    ];
+
+
+    for (const key of possibleKeys) {
+
+        const value =
+            localStorage.getItem(key);
+
+
+        if (!value) {
+            continue;
+        }
+
+
+        try {
+
+            return JSON.parse(value);
+
+        }
+
+        catch (error) {
+
+            console.warn(
+                "Invalid user data:",
+                key
+            );
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =====================================================
+   AUTH HEADERS
+===================================================== */
+
+function getAuthHeaders() {
+
+    const token =
+        getToken();
+
+
+    return {
+
+        "Content-Type":
+            "application/json",
+
+        "Authorization":
+            `Bearer ${token}`
+
+    };
+
+}
+
+
+/* =====================================================
+   CLEAR AUTH
+===================================================== */
+
+function clearAuth() {
+
+    const keys = [
+
+        "lifelineToken",
+        "token",
+        "authToken",
+        "accessToken",
+        "jwt",
+
+        "lifelineUser",
+        "user",
+        "currentUser",
+        "loggedInUser"
+
+    ];
+
+
+    keys.forEach(key => {
+
+        localStorage.removeItem(key);
+
+    });
+
+}
+
+
+/* =====================================================
+   CHECK LOGIN
+===================================================== */
+
+function checkLogin() {
+
+    const token =
+        getToken();
+
+    const user =
+        getUser();
+
+
+    console.log(
+        "Dashboard token exists:",
+        !!token
+    );
+
+    console.log(
+        "Dashboard user:",
+        user
+    );
+
+
+    if (!token) {
+
+        alert(
+            "Please login first."
+        );
+
+        window.location.href =
+            "login.html";
+
+        return false;
+
+    }
+
+
+    if (
+        user &&
+        user.role &&
+        String(user.role)
+            .toLowerCase()
+            .trim() !== "donor"
+    ) {
+
+        alert(
+            "This dashboard is only for donors."
+        );
+
+        window.location.href =
+            "login.html";
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
+
+/* =====================================================
+   SHOW USER
+===================================================== */
+
+function showUser() {
+
+    const user =
+        getUser();
+
+
+    if (
+        user &&
+        user.name
+    ) {
+
+        document.getElementById(
+            "welcomeText"
+        ).innerHTML =
+            `Welcome, <strong>${escapeHtml(user.name)}</strong>. Find blood requests and help patients in need.`;
+
+    }
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHtml(value) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
+        return "";
+
+    }
+
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/* =====================================================
+   TOAST
+===================================================== */
+
+function showToast(
+    message,
+    duration = 3000
+) {
+
+    const toast =
+        document.getElementById("toast");
+
+
+    toast.textContent =
+        message;
+
+
+    toast.classList.add("show");
+
+
+    setTimeout(() => {
+
+        toast.classList.remove("show");
+
+    }, duration);
+
+}
+
+
+/* =====================================================
+   API REQUEST
+===================================================== */
+
+async function apiRequest(
+    endpoint,
+    options = {}
+) {
+
+    const token =
+        getToken();
+
+
+    if (!token) {
+
+        clearAuth();
+
+        window.location.href =
+            "login.html";
+
+        throw new Error(
+            "AUTH_REQUIRED"
+        );
+
+    }
+
+
+    const response =
+        await fetch(
+            API_BASE_URL + endpoint,
+            {
+
+                ...options,
+
+                headers: {
+
+                    ...getAuthHeaders(),
+
+                    ...(options.headers || {})
+
+                }
+
+            }
+        );
+
+
+    let data = {};
+
+
+    try {
+
+        data =
+            await response.json();
+
+    }
+
+    catch {
+
+        data = {};
+
+    }
+
+
+    if (
+        response.status === 401
+    ) {
+
+        clearAuth();
+
+        alert(
+            "Your login session has expired. Please login again."
+        );
+
+        window.location.href =
+            "login.html";
+
+        throw new Error(
+            "AUTH_REQUIRED"
+        );
+
+    }
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            data.message ||
+            `Request failed (${response.status})`
+        );
+
+    }
+
+
+    return data;
+
+}
+
+
+/* =====================================================
+   LOCATION STATUS
+===================================================== */
+
+function setLocationStatus(
+    message,
+    type = ""
+) {
+
+    const element =
+        document.getElementById(
+            "locationStatus"
+        );
+
+
+    element.textContent =
+        message;
+
+
+    element.className =
+        "location-status";
+
+
+    if (type) {
+
+        element.classList.add(
+            type
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   GET DONOR LOCATION
+===================================================== */
+
+function updateDonorLocation() {
+
+    const button =
+        document.getElementById(
+            "locationButton"
+        );
+
+
+    if (
+        !navigator.geolocation
+    ) {
+
+        setLocationStatus(
+            "Geolocation is not supported by this browser.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    button.disabled =
+        true;
+
+    button.textContent =
+        "📍 Detecting...";
+
+
+    setLocationStatus(
+        "Requesting your current location...",
+        "loading"
+    );
+
+
+    navigator.geolocation.getCurrentPosition(
+
+        async position => {
+
+            donorLocation = {
+
+                latitude:
+                    position.coords.latitude,
+
+                longitude:
+                    position.coords.longitude
+
+            };
+
+
+            locationReady =
+                true;
+
+
+            localStorage.setItem(
+                "lifelineDonorLatitude",
+                donorLocation.latitude
+            );
+
+
+            localStorage.setItem(
+                "lifelineDonorLongitude",
+                donorLocation.longitude
+            );
+
+
+            setLocationStatus(
+                `Location detected. Showing nearest blood requests first.`,
+                "success"
+            );
+
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                "📍 Update Location";
+
+
+            await calculateAllRequestDistances();
+
+            filterRequests();
+
+        },
+
+
+        error => {
+
+            console.error(
+                "Geolocation error:",
+                error
+            );
+
+
+            locationReady =
+                false;
+
+
+            let message =
+                "Unable to detect your location.";
+
+
+            if (
+                error.code ===
+                error.PERMISSION_DENIED
+            ) {
+
+                message =
+                    "Location permission was denied. Please allow location access.";
+
+            }
+
+            else if (
+                error.code ===
+                error.POSITION_UNAVAILABLE
+            ) {
+
+                message =
+                    "Your location is currently unavailable.";
+
+            }
+
+            else if (
+                error.code ===
+                error.TIMEOUT
+            ) {
+
+                message =
+                    "Location request timed out. Please try again.";
+
+            }
+
+
+            setLocationStatus(
+                message,
+                "error"
+            );
+
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                "📍 Update Location";
+
+
+            /*
+             * Try previously saved location.
+             */
+
+            loadSavedLocation();
+
+        },
+
+        {
+
+            enableHighAccuracy:
+                true,
+
+            timeout:
+                15000,
+
+            maximumAge:
+                300000
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   LOAD SAVED LOCATION
+===================================================== */
+
+function loadSavedLocation() {
+
+    const latitude =
+        parseFloat(
+            localStorage.getItem(
+                "lifelineDonorLatitude"
+            )
+        );
+
+
+    const longitude =
+        parseFloat(
+            localStorage.getItem(
+                "lifelineDonorLongitude"
+            )
+        );
+
+
+    if (
+        Number.isFinite(latitude) &&
+        Number.isFinite(longitude)
+    ) {
+
+        donorLocation = {
+
+            latitude,
+            longitude
+
+        };
+
+
+        locationReady =
+            true;
+
+
+        setLocationStatus(
+            "Using your previously detected location. Update it for your latest position.",
+            "success"
+        );
+
+
+        calculateAllRequestDistances()
+            .then(() => filterRequests());
+
+    }
+
+}
+
+
+/* =====================================================
+   COORDINATE EXTRACTION
+===================================================== */
+
+function getRequestCoordinates(
+    request
+) {
+
+    /*
+     * Supports many common backend field names.
+     */
+
+    const latitudeCandidates = [
+
+        request.latitude,
+        request.lat,
+
+        request.hospital_latitude,
+        request.hospital_lat,
+
+        request.hospitalLatitude,
+
+        request.location_latitude,
+        request.location_lat,
+
+        request.locationLatitude
+
+    ];
+
+
+    const longitudeCandidates = [
+
+        request.longitude,
+        request.lng,
+        request.lon,
+
+        request.hospital_longitude,
+        request.hospital_lng,
+        request.hospital_lon,
+
+        request.hospitalLongitude,
+
+        request.location_longitude,
+        request.location_lng,
+        request.locationLongitude
+
+    ];
+
+
+    let latitude = null;
+    let longitude = null;
+
+
+    for (
+        const value of latitudeCandidates
+    ) {
+
+        const parsed =
+            parseFloat(value);
+
+
+        if (
+            Number.isFinite(parsed) &&
+            parsed >= -90 &&
+            parsed <= 90
+        ) {
+
+            latitude =
+                parsed;
+
+            break;
+
+        }
+
+    }
+
+
+    for (
+        const value of longitudeCandidates
+    ) {
+
+        const parsed =
+            parseFloat(value);
+
+
+        if (
+            Number.isFinite(parsed) &&
+            parsed >= -180 &&
+            parsed <= 180
+        ) {
+
+            longitude =
+                parsed;
+
+            break;
+
+        }
+
+    }
+
+
+    if (
+        latitude === null ||
+        longitude === null
+    ) {
+
+        return null;
+
+    }
+
+
+    return {
+
+        latitude,
+        longitude
+
+    };
+
+}
+
+
+/* =====================================================
+   HAVERSINE DISTANCE
+===================================================== */
+
+function calculateDistanceKm(
+    lat1,
+    lon1,
+    lat2,
+    lon2
+) {
+
+    const earthRadius =
+        6371;
+
+
+    const toRadians =
+        degrees =>
+            degrees *
+            Math.PI /
+            180;
+
+
+    const dLat =
+        toRadians(
+            lat2 - lat1
+        );
+
+
+    const dLon =
+        toRadians(
+            lon2 - lon1
+        );
+
+
+    const a =
+        Math.sin(dLat / 2) *
+        Math.sin(dLat / 2) +
+
+        Math.cos(
+            toRadians(lat1)
+        ) *
+
+        Math.cos(
+            toRadians(lat2)
+        ) *
+
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+
+    const c =
+        2 *
+        Math.atan2(
+            Math.sqrt(a),
+            Math.sqrt(1 - a)
+        );
+
+
+    return earthRadius * c;
+
+}
+
+
+/* =====================================================
+   GEOCODE LOCATION
+===================================================== */
+
+async function geocodeLocation(
+    location
+) {
+
+    if (!location) {
+        return null;
+    }
+
+
+    const query =
+        String(location)
+            .trim();
+
+
+    if (!query) {
+        return null;
+    }
+
+
+    try {
+
+        const url =
+            "https://nominatim.openstreetmap.org/search" +
+            "?format=json" +
+            "&limit=1" +
+            "&q=" +
+            encodeURIComponent(
+                query + ", India"
+            );
+
+
+        const response =
+            await fetch(
+                url,
+                {
+                    headers: {
+                        "Accept":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        if (!response.ok) {
+            return null;
+        }
+
+
+        const results =
+            await response.json();
+
+
+        if (
+            !Array.isArray(results) ||
+            !results.length
+        ) {
+
+            return null;
+
+        }
+
+
+        const latitude =
+            parseFloat(
+                results[0].lat
+            );
+
+
+        const longitude =
+            parseFloat(
+                results[0].lon
+            );
+
+
+        if (
+            !Number.isFinite(latitude) ||
+            !Number.isFinite(longitude)
+        ) {
+
+            return null;
+
+        }
+
+
+        return {
+
+            latitude,
+            longitude
+
+        };
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            "Geocoding failed:",
+            location,
+            error
+        );
+
+
+        return null;
+
+    }
+
+}
+
+
+/* =====================================================
+   CALCULATE ALL REQUEST DISTANCES
+===================================================== */
+
+async function calculateAllRequestDistances() {
+
+    if (
+        !locationReady ||
+        !donorLocation ||
+        !allRequests.length
+    ) {
+
+        return;
+
+    }
+
+
+    /*
+     * First use coordinates directly supplied by backend.
+     */
+
+    const requestsWithoutCoordinates = [];
+
+
+    allRequests.forEach(request => {
+
+        const coordinates =
+            getRequestCoordinates(
+                request
+            );
+
+
+        if (coordinates) {
+
+            request._latitude =
+                coordinates.latitude;
+
+            request._longitude =
+                coordinates.longitude;
+
+
+            request._distanceKm =
+                calculateDistanceKm(
+
+                    donorLocation.latitude,
+
+                    donorLocation.longitude,
+
+                    coordinates.latitude,
+
+                    coordinates.longitude
+
+                );
+
+        }
+
+        else {
+
+            requestsWithoutCoordinates.push(
+                request
+            );
+
+        }
+
+    });
+
+
+    /*
+     * Geocode location names only when coordinates
+     * are not already available.
+     */
+
+    const geocodeCache = {};
+
+
+    for (
+        const request of
+        requestsWithoutCoordinates
+    ) {
+
+        const location =
+            String(
+                request.location ||
+                request.hospital_address ||
+                request.address ||
+                ""
+            ).trim();
+
+
+        if (!location) {
+
+            request._distanceKm =
+                null;
+
+            continue;
+
+        }
+
+
+        if (
+            geocodeCache[location]
+        ) {
+
+            const coordinates =
+                geocodeCache[location];
+
+
+            request._latitude =
+                coordinates.latitude;
+
+            request._longitude =
+                coordinates.longitude;
+
+
+            request._distanceKm =
+                calculateDistanceKm(
+
+                    donorLocation.latitude,
+
+                    donorLocation.longitude,
+
+                    coordinates.latitude,
+
+                    coordinates.longitude
+
+                );
+
+
+            continue;
+
+        }
+
+
+        const coordinates =
+            await geocodeLocation(
+                location
+            );
+
+
+        if (coordinates) {
+
+            geocodeCache[location] =
+                coordinates;
+
+
+            request._latitude =
+                coordinates.latitude;
+
+            request._longitude =
+                coordinates.longitude;
+
+
+            request._distanceKm =
+                calculateDistanceKm(
+
+                    donorLocation.latitude,
+
+                    donorLocation.longitude,
+
+                    coordinates.latitude,
+
+                    coordinates.longitude
+
+                );
+
+        }
+
+        else {
+
+            request._distanceKm =
+                null;
+
+        }
+
+
+        /*
+         * Small delay between geocoding requests.
+         */
+
+        await new Promise(
+            resolve =>
+                setTimeout(
+                    resolve,
+                    500
+                )
+        );
+
+    }
+
+
+    sortRequestsByDistance();
+
+}
+
+
+/* =====================================================
+   SORT REQUESTS BY DISTANCE
+===================================================== */
+
+function sortRequestsByDistance() {
+
+    allRequests.sort(
+        (a, b) => {
+
+            const distanceA =
+                Number.isFinite(
+                    a._distanceKm
+                )
+                    ? a._distanceKm
+                    : Infinity;
+
+
+            const distanceB =
+                Number.isFinite(
+                    b._distanceKm
+                )
+                    ? b._distanceKm
+                    : Infinity;
+
+
+            return (
+                distanceA -
+                distanceB
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   FORMAT DISTANCE
+===================================================== */
+
+function formatDistance(
+    distance
+) {
+
+    if (
+        !Number.isFinite(
+            distance
+        )
+    ) {
+
+        return "Not available";
+
+    }
+
+
+    if (
+        distance < 1
+    ) {
+
+        return `${Math.round(distance * 1000)} m`;
+
+    }
+
+
+    return `${distance.toFixed(1)} km`;
+
+}
+
+
+/* =====================================================
+   ROUTE
+===================================================== */
+
+function openRoute(
+    request
+) {
+
+    if (
+        !donorLocation
+    ) {
+
+        showToast(
+            "📍 Please update your location first."
+        );
+
+        return;
+
+    }
+
+
+    const coordinates =
+        getRequestCoordinates(
+            request
+        );
+
+
+    let latitude =
+        request._latitude;
+
+    let longitude =
+        request._longitude;
+
+
+    if (
+        !Number.isFinite(
+            latitude
+        ) ||
+        !Number.isFinite(
+            longitude
+        )
+    ) {
+
+        if (coordinates) {
+
+            latitude =
+                coordinates.latitude;
+
+            longitude =
+                coordinates.longitude;
+
+        }
+
+    }
+
+
+    if (
+        !Number.isFinite(
+            latitude
+        ) ||
+        !Number.isFinite(
+            longitude
+        )
+    ) {
+
+        showToast(
+            "🗺️ Route is unavailable because the hospital location could not be determined."
+        );
+
+        return;
+
+    }
+
+
+    const routeUrl =
+        "https://www.google.com/maps/dir/?api=1" +
+
+        "&origin=" +
+
+        encodeURIComponent(
+            donorLocation.latitude +
+            "," +
+            donorLocation.longitude
+        ) +
+
+        "&destination=" +
+
+        encodeURIComponent(
+            latitude +
+            "," +
+            longitude
+        );
+
+
+    window.open(
+        routeUrl,
+        "_blank"
+    );
+
+}
+
+
+/* =====================================================
+   AVAILABLE REQUESTS
+===================================================== */
+
+async function loadAvailableRequests() {
+
+    const container =
+        document.getElementById(
+            "requestsContainer"
+        );
+
+
+    container.innerHTML = `
+        <div class="loading">
+            Loading blood requests...
+        </div>
+    `;
+
+
+    try {
+
+        const data =
+            await apiRequest(
+                "/requests/open"
+            );
+
+
+        allRequests =
+            data.requests || [];
+
+
+        document.getElementById(
+            "availableCount"
+        ).textContent =
+            allRequests.length;
+
+
+        if (
+            locationReady
+        ) {
+
+            await calculateAllRequestDistances();
+
+        }
+
+
+        filterRequests();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Available Requests Error:",
+            error
+        );
+
+
+        if (
+            error.message ===
+            "AUTH_REQUIRED"
+        ) {
+
+            return;
+
+        }
+
+
+        container.innerHTML = `
+            <div class="error">
+                ❌ ${escapeHtml(error.message)}
+            </div>
+        `;
+
+    }
+
+}
+
+
+/* =====================================================
+   RENDER REQUESTS
+===================================================== */
+
+function renderRequests(
+    requests
+) {
+
+    const container =
+        document.getElementById(
+            "requestsContainer"
+        );
+
+
+    if (!requests.length) {
+
+        container.innerHTML = `
+            <div class="empty">
+
+                🩸
+
+                <br><br>
+
+                <strong>
+                    No blood requests available.
+                </strong>
+
+                <br>
+
+                Check again later.
+
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    /*
+     * Determine nearest visible request.
+     */
+
+    let nearestRequestId =
+        null;
+
+
+    if (
+        locationReady
+    ) {
+
+        const withDistance =
+            requests.filter(
+                request =>
+                    Number.isFinite(
+                        request._distanceKm
+                    )
+            );
+
+
+        if (
+            withDistance.length
+        ) {
+
+            const nearest =
+                [...withDistance]
+                    .sort(
+                        (a, b) =>
+                            a._distanceKm -
+                            b._distanceKm
+                    )[0];
+
+
+            nearestRequestId =
+                nearest.id;
+
+        }
+
+    }
+
+
+    container.innerHTML =
+        requests.map(request => {
+
+            const urgency =
+                String(
+                    request.urgency ||
+                    "normal"
+                ).toLowerCase();
+
+
+            const requiredDate =
+                request.required_date
+                    ? formatDate(
+                        request.required_date
+                    )
+                    : "Not specified";
+
+
+            const isNearest =
+                nearestRequestId !== null &&
+                String(
+                    request.id
+                ) ===
+                String(
+                    nearestRequestId
+                );
+
+
+            const distanceText =
+                locationReady
+                    ? formatDistance(
+                        request._distanceKm
+                    )
+                    : "Location not detected";
+
+
+            const hasRoute =
+                Number.isFinite(
+                    request._latitude
+                ) &&
+                Number.isFinite(
+                    request._longitude
+                );
+
+
+            return `
+
+                <div
+                    class="request-card ${isNearest ? "nearest" : ""}"
+                >
+
+                    ${
+                        isNearest
+                        ?
+                        `
+                        <div class="nearest-label">
+                            📍 NEAREST REQUEST
+                        </div>
+                        `
+                        :
+                        ""
+                    }
+
+
+                    <div class="request-top">
+
+                        <div class="blood-badge">
+                            🩸
+                            ${escapeHtml(
+                                request.blood_group
+                            )}
+                        </div>
+
+                        <div class="urgency ${escapeHtml(urgency)}">
+                            ${escapeHtml(urgency)}
+                        </div>
+
+                    </div>
+
+
+                    <div class="hospital-name">
+
+                        🏥
+                        ${escapeHtml(
+                            request.hospital_name ||
+                            "Hospital"
+                        )}
+
+                    </div>
+
+
+                    <div class="request-info">
+
+                        🩸
+                        <strong>Units:</strong>
+                        ${escapeHtml(
+                            request.units_required
+                        )}
+
+                        <br>
+
+                        📍
+                        <strong>Location:</strong>
+                        ${escapeHtml(
+                            request.location ||
+                            "Not specified"
+                        )}
+
+                        <br>
+
+                        📅
+                        <strong>Required Date:</strong>
+                        ${escapeHtml(
+                            requiredDate
+                        )}
+
+                    </div>
+
+
+                    <!-- DISTANCE -->
+
+                    <div class="distance-box">
+
+                        <div>
+
+                            <div class="distance-title">
+                                Distance
+                            </div>
+
+                            <div class="distance-value">
+                                ${
+                                    locationReady
+                                    ?
+                                    formatDistance(
+                                        request._distanceKm
+                                    )
+                                    :
+                                    "Not available"
+                                }
+                            </div>
+
+                        </div>
+
+
+                        <div class="distance-icon">
+                            📍
+                        </div>
+
+                    </div>
+
+
+                    <!-- ROUTE -->
+
+                    ${
+                        hasRoute
+                        ?
+                        `
+                        <button
+                            class="route-btn"
+                            onclick='openRoute(${JSON.stringify(request).replace(/'/g, "&#039;")})'
+                            type="button"
+                        >
+                            🗺️ View Route
+                        </button>
+                        `
+                        :
+                        `
+                        <button
+                            class="route-btn disabled"
+                            type="button"
+                            disabled
+                        >
+                            🗺️ Route Unavailable
+                        </button>
+                        `
+                    }
+
+
+                    ${
+                        request.message
+                        ?
+                        `
+                        <div class="response-message">
+
+                            💬
+                            ${escapeHtml(
+                                request.message
+                            )}
+
+                        </div>
+                        `
+                        :
+                        ""
+                    }
+
+
+                    <button
+                        class="respond-btn"
+                        onclick="respondToRequest(${Number(request.id)}, this)"
+                        type="button"
+                    >
+                        🩸 Respond to Request
+                    </button>
+
+                </div>
+
+            `;
+
+        }).join("");
+
+}
+
+
+/* =====================================================
+   FILTER REQUESTS
+===================================================== */
+
+function filterRequests() {
+
+    const search =
+        document.getElementById(
+            "searchInput"
+        )
+        .value
+        .toLowerCase()
+        .trim();
+
+
+    const bloodGroup =
+        document.getElementById(
+            "bloodFilter"
+        ).value;
+
+
+    const filtered =
+        allRequests.filter(request => {
+
+            const hospital =
+                String(
+                    request.hospital_name ||
+                    ""
+                ).toLowerCase();
+
+
+            const location =
+                String(
+                    request.location ||
+                    ""
+                ).toLowerCase();
+
+
+            const blood =
+                request.blood_group ||
+                "";
+
+
+            const matchesSearch =
+                !search ||
+                hospital.includes(search) ||
+                location.includes(search);
+
+
+            const matchesBlood =
+                !bloodGroup ||
+                blood === bloodGroup;
+
+
+            return (
+                matchesSearch &&
+                matchesBlood
+            );
+
+        });
+
+
+    /*
+     * Keep nearest request first after filtering.
+     */
+
+    filtered.sort(
+        (a, b) => {
+
+            const distanceA =
+                Number.isFinite(
+                    a._distanceKm
+                )
+                    ? a._distanceKm
+                    : Infinity;
+
+
+            const distanceB =
+                Number.isFinite(
+                    b._distanceKm
+                )
+                    ? b._distanceKm
+                    : Infinity;
+
+
+            return (
+                distanceA -
+                distanceB
+            );
+
+        }
+    );
+
+
+    renderRequests(
+        filtered
+    );
+
+}
+
+
+/* =====================================================
+   RESPOND TO REQUEST
+===================================================== */
+
+async function respondToRequest(
+    requestId,
+    button
+) {
+
+    if (!requestId) {
+
+        showToast(
+            "Invalid blood request."
+        );
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+            "Are you sure you want to respond to this blood request?"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    button.disabled =
+        true;
+
+
+    button.textContent =
+        "Sending response...";
+
+
+    try {
+
+        const data =
+            await apiRequest(
+                `/requests/${requestId}/respond`,
+                {
+                    method: "POST"
+                }
+            );
+
+
+        showToast(
+            data.message ||
+            "🩸 Response sent successfully!"
+        );
+
+
+        button.textContent =
+            "✅ Response Sent";
+
+
+        await loadMyResponses();
+
+        await loadAvailableRequests();
+
+        await loadNotifications();
+
+        await loadUnreadCount();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Respond Error:",
+            error
+        );
+
+
+        button.disabled =
+            false;
+
+
+        button.textContent =
+            "🩸 Respond to Request";
+
+
+        if (
+            error.message ===
+            "AUTH_REQUIRED"
+        ) {
+
+            return;
+
+        }
+
+
+        showToast(
+            "❌ " + error.message,
+            4000
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   MY RESPONSES
+===================================================== */
+
+async function loadMyResponses() {
+
+    const container =
+        document.getElementById(
+            "responsesContainer"
+        );
+
+
+    container.innerHTML = `
+        <div class="loading">
+            Loading your responses...
+        </div>
+    `;
+
+
+    try {
+
+        const data =
+            await apiRequest(
+                "/requests/my-responses"
+            );
+
+
+        const responses =
+            data.responses || [];
+
+
+        updateStats(
+            responses
+        );
+
+
+        renderResponses(
+            responses
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "My Responses Error:",
+            error
+        );
+
+
+        if (
+            error.message ===
+            "AUTH_REQUIRED"
+        ) {
+
+            return;
+
+        }
+
+
+        container.innerHTML = `
+            <div class="error">
+                ❌ ${escapeHtml(error.message)}
+            </div>
+        `;
+
+    }
+
+}
+
+
+/* =====================================================
+   UPDATE STATS
+===================================================== */
+
+function updateStats(
+    responses
+) {
+
+    const pending =
+        responses.filter(
+            r =>
+                String(
+                    r.response_status
+                ).toLowerCase() ===
+                "pending"
+        ).length;
+
+
+    const accepted =
+        responses.filter(
+            r =>
+                String(
+                    r.response_status
+                ).toLowerCase() ===
+                "accepted"
+        ).length;
+
+
+    const completed =
+        responses.filter(
+            r =>
+                String(
+                    r.response_status
+                ).toLowerCase() ===
+                "completed"
+        ).length;
+
+
+    document.getElementById(
+        "responseCount"
+    ).textContent =
+        responses.length;
+
+
+    document.getElementById(
+        "pendingCount"
+    ).textContent =
+        pending;
+
+
+    document.getElementById(
+        "acceptedCount"
+    ).textContent =
+        accepted;
+
+
+    document.getElementById(
+        "completedCount"
+    ).textContent =
+        completed;
+
+}
+
+
+/* =====================================================
+   RENDER RESPONSES
+===================================================== */
+
+function renderResponses(
+    responses
+) {
+
+    const container =
+        document.getElementById(
+            "responsesContainer"
+        );
+
+
+    if (!responses.length) {
+
+        container.innerHTML = `
+            <div class="empty">
+
+                📤
+
+                <br><br>
+
+                <strong>
+                    You haven't responded to any blood requests yet.
+                </strong>
+
+                <br>
+
+                Available requests will appear above.
+
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        responses.map(response => {
+
+            const status =
+                String(
+                    response.response_status ||
+                    "pending"
+                ).toLowerCase();
+
+
+            const requiredDate =
+                response.required_date
+                    ? formatDate(
+                        response.required_date
+                    )
+                    : "Not specified";
+
+
+            const responseDate =
+                response.response_date
+                    ? formatDateTime(
+                        response.response_date
+                    )
+                    : "Not specified";
+
+
+            let statusMessage = "";
+
+
+            if (
+                status === "pending"
+            ) {
+
+                statusMessage = `
+                    ⏳
+                    <strong>
+                        Waiting for hospital response.
+                    </strong>
+                    <br>
+                    The hospital has received your donation response.
+                `;
+
+            }
+
+            else if (
+                status === "accepted"
+            ) {
+
+                statusMessage = `
+                    🎉
+                    <strong>
+                        Your donation response was accepted!
+                    </strong>
+                    <br>
+                    Please follow the hospital's instructions.
+                `;
+
+            }
+
+            else if (
+                status === "rejected"
+            ) {
+
+                statusMessage = `
+                    ❌
+                    <strong>
+                        Your response was not selected.
+                    </strong>
+                    <br>
+                    You can help with another available request.
+                `;
+
+            }
+
+            else if (
+                status === "completed"
+            ) {
+
+                statusMessage = `
+                    🏁
+                    <strong>
+                        Donation completed.
+                    </strong>
+                    <br>
+                    Thank you for helping someone in need! ❤️
+                `;
+
+            }
+
+
+            return `
+
+                <div class="response-card">
+
+
+                    <div class="response-header">
+
+                        <div class="response-title">
+
+                            🏥
+                            ${escapeHtml(
+                                response.hospital_name ||
+                                "Hospital"
+                            )}
+
+                            <br>
+
+                            <small>
+                                Response #
+                                ${escapeHtml(
+                                    response.response_id
+                                )}
+                            </small>
+
+                        </div>
+
+
+                        <div class="status ${escapeHtml(status)}">
+
+                            ${escapeHtml(status)}
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="response-details">
+
+
+                        <div class="detail">
+
+                            <div class="detail-label">
+                                Blood Group
+                            </div>
+
+                            <div class="detail-value">
+
+                                🩸
+                                ${escapeHtml(
+                                    response.blood_group
+                                )}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="detail">
+
+                            <div class="detail-label">
+                                Units
+                            </div>
+
+                            <div class="detail-value">
+
+                                ${escapeHtml(
+                                    response.units_required
+                                )}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="detail">
+
+                            <div class="detail-label">
+                                Urgency
+                            </div>
+
+                            <div class="detail-value">
+
+                                ${escapeHtml(
+                                    response.urgency ||
+                                    "Normal"
+                                )}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="detail">
+
+                            <div class="detail-label">
+                                Location
+                            </div>
+
+                            <div class="detail-value">
+
+                                📍
+                                ${escapeHtml(
+                                    response.location ||
+                                    "Not specified"
+                                )}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="detail">
+
+                            <div class="detail-label">
+                                Required Date
+                            </div>
+
+                            <div class="detail-value">
+
+                                ${escapeHtml(
+                                    requiredDate
+                                )}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="detail">
+
+                            <div class="detail-label">
+                                Response Date
+                            </div>
+
+                            <div class="detail-value">
+
+                                ${escapeHtml(
+                                    responseDate
+                                )}
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="response-message">
+
+                        ${statusMessage}
+
+                    </div>
+
+
+                    ${
+                        response.message
+                        ?
+                        `
+                        <div class="response-message">
+
+                            💬
+                            <strong>
+                                Hospital Message:
+                            </strong>
+
+                            <br>
+
+                            ${escapeHtml(
+                                response.message
+                            )}
+
+                        </div>
+                        `
+                        :
+                        ""
+                    }
+
+                </div>
+
+            `;
+
+        }).join("");
+
+}
+
+
+/* =====================================================
+   NOTIFICATIONS
+===================================================== */
+
+async function loadNotifications() {
+
+    const container =
+        document.getElementById(
+            "notificationsList"
+        );
+
+
+    try {
+
+        const data =
+            await apiRequest(
+                "/notifications"
+            );
+
+
+        notifications =
+            data.notifications || [];
+
+
+        renderNotifications(
+            notifications
+        );
+
+
+        updateNotificationBadge(
+            notifications
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Notification Error:",
+            error
+        );
+
+
+        if (
+            error.message ===
+            "AUTH_REQUIRED"
+        ) {
+
+            return;
+
+        }
+
+
+        container.innerHTML = `
+            <div class="notification-empty">
+                ❌ Unable to load notifications
+            </div>
+        `;
+
+    }
+
+}
+
+
+/* =====================================================
+   RENDER NOTIFICATIONS
+===================================================== */
+
+function renderNotifications(
+    list
+) {
+
+    const container =
+        document.getElementById(
+            "notificationsList"
+        );
+
+
+    if (!list.length) {
+
+        container.innerHTML = `
+            <div class="notification-empty">
+
+                🔔
+
+                <br><br>
+
+                <strong>
+                    No notifications
+                </strong>
+
+                <br>
+
+                You'll see updates from hospitals here.
+
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        list.map(notification => {
+
+            const unread =
+                Number(
+                    notification.is_read
+                ) === 0;
+
+
+            return `
+
+                <div
+                    class="notification-item ${unread ? "unread" : ""}"
+                    onclick="markNotificationRead(${Number(notification.id)})"
+                >
+
+                    <div class="notification-item-title">
+
+                        ${getNotificationIcon(
+                            notification.type,
+                            notification.title
+                        )}
+
+                        ${escapeHtml(
+                            notification.title
+                        )}
+
+                    </div>
+
+
+                    <div class="notification-item-message">
+
+                        ${escapeHtml(
+                            notification.message
+                        )}
+
+                    </div>
+
+
+                    <div class="notification-item-time">
+
+                        ${formatDateTime(
+                            notification.created_at
+                        )}
+
+                        ${
+                            unread
+                            ? " • Unread"
+                            : ""
+                        }
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }).join("");
+
+}
+
+
+/* =====================================================
+   NOTIFICATION ICON
+===================================================== */
+
+function getNotificationIcon(
+    type,
+    title
+) {
+
+    const text =
+        (
+            String(type || "") +
+            " " +
+            String(title || "")
+        ).toLowerCase();
+
+
+    if (
+        text.includes("accept")
+    ) {
+
+        return "🎉";
+
+    }
+
+
+    if (
+        text.includes("reject")
+    ) {
+
+        return "❌";
+
+    }
+
+
+    if (
+        text.includes("complete")
+    ) {
+
+        return "🏁";
+
+    }
+
+
+    if (
+        text.includes("response")
+    ) {
+
+        return "📩";
+
+    }
+
+
+    return "🔔";
+
+}
+
+
+/* =====================================================
+   UNREAD COUNT
+===================================================== */
+
+async function loadUnreadCount() {
+
+    try {
+
+        const data =
+            await apiRequest(
+                "/notifications/unread-count"
+            );
+
+
+        const count =
+            Number(
+                data.unread_count || 0
+            );
+
+
+        const badge =
+            document.getElementById(
+                "notificationBadge"
+            );
+
+
+        badge.textContent =
+            count > 99
+                ? "99+"
+                : count;
+
+
+        if (count > 0) {
+
+            badge.classList.add(
+                "show"
+            );
+
+        }
+
+        else {
+
+            badge.classList.remove(
+                "show"
+            );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Unread count error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   UPDATE BADGE
+===================================================== */
+
+function updateNotificationBadge(
+    list
+) {
+
+    const unread =
+        list.filter(
+            notification =>
+                Number(
+                    notification.is_read
+                ) === 0
+        ).length;
+
+
+    const badge =
+        document.getElementById(
+            "notificationBadge"
+        );
+
+
+    badge.textContent =
+        unread > 99
+            ? "99+"
+            : unread;
+
+
+    if (unread > 0) {
+
+        badge.classList.add(
+            "show"
+        );
+
+    }
+
+    else {
+
+        badge.classList.remove(
+            "show"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   TOGGLE NOTIFICATIONS
+===================================================== */
+
+function toggleNotifications() {
+
+    const panel =
+        document.getElementById(
+            "notificationPanel"
+        );
+
+
+    const willOpen =
+        !panel.classList.contains(
+            "show"
+        );
+
+
+    panel.classList.toggle(
+        "show"
+    );
+
+
+    if (willOpen) {
+
+        loadNotifications();
+
+    }
+
+}
+
+
+/* =====================================================
+   MARK ONE NOTIFICATION READ
+===================================================== */
+
+async function markNotificationRead(
+    notificationId
+) {
+
+    try {
+
+        await apiRequest(
+            `/notifications/${notificationId}/read`,
+            {
+                method: "PUT"
+            }
+        );
+
+
+        await loadNotifications();
+
+        await loadUnreadCount();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Mark notification read error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   MARK ALL NOTIFICATIONS READ
+===================================================== */
+
+async function markAllNotificationsRead() {
+
+    try {
+
+        await apiRequest(
+            "/notifications/read-all",
+            {
+                method: "PUT"
+            }
+        );
+
+
+        showToast(
+            "✅ All notifications marked as read"
+        );
+
+
+        await loadNotifications();
+
+        await loadUnreadCount();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Mark all notifications error:",
+            error
+        );
+
+
+        showToast(
+            "❌ Unable to update notifications"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   CLICK OUTSIDE NOTIFICATIONS
+===================================================== */
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+        const wrapper =
+            document.querySelector(
+                ".notification-wrapper"
+            );
+
+
+        const panel =
+            document.getElementById(
+                "notificationPanel"
+            );
+
+
+        if (
+            wrapper &&
+            !wrapper.contains(
+                event.target
+            )
+        ) {
+
+            panel.classList.remove(
+                "show"
+            );
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   DATE
+===================================================== */
+
+function formatDate(
+    date
+) {
+
+    if (!date) {
+
+        return "Not specified";
+
+    }
+
+
+    const d =
+        new Date(date);
+
+
+    if (
+        isNaN(
+            d.getTime()
+        )
+    ) {
+
+        return String(date)
+            .split("T")[0];
+
+    }
+
+
+    return d.toLocaleDateString(
+        "en-IN",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        }
+    );
+
+}
+
+
+/* =====================================================
+   DATE + TIME
+===================================================== */
+
+function formatDateTime(
+    date
+) {
+
+    if (!date) {
+
+        return "Not specified";
+
+    }
+
+
+    const d =
+        new Date(date);
+
+
+    if (
+        isNaN(
+            d.getTime()
+        )
+    ) {
+
+        return String(date);
+
+    }
+
+
+    return d.toLocaleString(
+        "en-IN",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    );
+
+}
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+function logout() {
+
+    clearAuth();
+
+    window.location.href =
+        "login.html";
+
+}
+
+
+/* =====================================================
+   INITIALIZE DASHBOARD
+===================================================== */
+
+async function initializeDashboard() {
+
+    console.log(
+        "🚀 Initializing LifeLine donor dashboard..."
+    );
+
+
+    if (!checkLogin()) {
+
+        return;
+
+    }
+
+
+    showUser();
+
+
+    /*
+     * Try saved location first.
+     */
+
+    loadSavedLocation();
+
+
+    /*
+     * Automatically request current location.
+     */
+
+    if (
+        navigator.geolocation
+    ) {
+
+        updateDonorLocation();
+
+    }
+
+    else {
+
+        setLocationStatus(
+            "Geolocation is not supported by this browser.",
+            "error"
+        );
+
+    }
+
+
+    /*
+     * Load dashboard data.
+     */
+
+    await Promise.all([
+
+        loadAvailableRequests(),
+
+        loadMyResponses(),
+
+        loadNotifications(),
+
+        loadUnreadCount()
+
+    ]);
+
+
+    /*
+     * Recalculate distances after requests
+     * have loaded.
+     */
+
+    if (
+        locationReady
+    ) {
+
+        await calculateAllRequestDistances();
+
+        filterRequests();
+
+    }
+
+
+    console.log(
+        "✅ Donor dashboard loaded"
+    );
+
+}
+
+
+/* =====================================================
+   AUTO REFRESH NOTIFICATIONS
+===================================================== */
+
+setInterval(
+    async function() {
+
+        if (!getToken()) {
+
+            return;
+
+        }
+
+
+        try {
+
+            await loadUnreadCount();
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Notification refresh error:",
+                error
+            );
+
+        }
+
+    },
+    10000
+);
+
+
+/* =====================================================
+   START DASHBOARD
+===================================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    initializeDashboard
+);
+
+</script>
+
+
+</body>
+
+</html>
