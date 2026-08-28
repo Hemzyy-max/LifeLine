@@ -370,13 +370,13 @@ router.post(
             // Notify hospital
 
             await createNotification(
-    request.hospital_id,
-    "hospital",
-    "New Donor Response",
-    "A donor has responded to your blood request.",
-    "donor_response",
-    result.insertId
-);
+                request.hospital_id,
+                "hospital",
+                "New Donor Response",
+                "A donor has responded to your blood request.",
+                "donor_response",
+                result.insertId
+            );
 
 
             return res.status(201).json({
@@ -556,14 +556,14 @@ router.put(
             connection.release();
 
 
-           await createNotification(
-    response.donor_id,
-    "donor",
-    "🎉 Donor Accepted",
-    "The hospital accepted your blood donation response. Please proceed according to the hospital's instructions.",
-    "accepted",
-    responseId
-);
+            await createNotification(
+                response.donor_id,
+                "donor",
+                "🎉 Donor Accepted",
+                "The hospital accepted your blood donation response. Please proceed according to the hospital's instructions.",
+                "accepted",
+                responseId
+            );
 
 
             return res.json({
@@ -816,13 +816,13 @@ router.put(
             // Notify donor
 
             await createNotification(
-    response.donor_id,
-    "donor",
-    "🏁 Donation Completed",
-    "Your blood donation has been recorded as completed. Thank you for helping someone in need.",
-    "completed",
-    responseId
-);
+                response.donor_id,
+                "donor",
+                "🏁 Donation Completed",
+                "Your blood donation has been recorded as completed. Thank you for helping someone in need.",
+                "completed",
+                responseId
+            );
 
 
             return res.json({
